@@ -1,4 +1,4 @@
-package com.backend.towork.user.dto;
+package com.backend.towork.member.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
+public class MemberDto {
     private String email;
     private String password;
     private String role;

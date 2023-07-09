@@ -1,4 +1,4 @@
-package com.backend.towork.user.entity;
+package com.backend.towork.member.entity;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

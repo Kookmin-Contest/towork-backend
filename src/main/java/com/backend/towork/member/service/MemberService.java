@@ -1,10 +1,9 @@
-package com.backend.towork.user.service;
+package com.backend.towork.member.service;
 
+import com.backend.towork.member.entity.Member;
+import com.backend.towork.member.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.backend.towork.user.entity.User;
-import com.backend.towork.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,17 +12,16 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class UserService {
+public class MemberService {
     
-    private final UserRepository userRepository;
+    private final MemberRepository memberRepository;
 
     @Transactional
-    public Long join(User user) {
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+    public void join(Member member) {
+        if (memberRepository.findByEmail(member.getEmail()).isPresent()) {
             throw new IllegalStateException("동일한 이메일을 가진 아이디가 있습니다.");
         }
         log.info("abc");
-        userRepository.save(user);
-        return user.getId();
+        memberRepository.save(member);
     }
 }
