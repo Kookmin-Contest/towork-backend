@@ -17,16 +17,21 @@ import java.time.LocalDateTime;
 public class Member {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false)
     private Long id;
 
+    @Column(nullable = false)
     private String email;
 
+    @Column(nullable = false)
     private String password;
 
     @CreatedDate
+    @Column(nullable = false)
     private LocalDateTime createDateTime;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Role role;
 
 }
