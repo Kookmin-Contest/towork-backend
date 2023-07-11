@@ -1,56 +1,47 @@
 package com.backend.towork.member.controller;
 
-import com.backend.towork.global.dto.ResponseDto;
-import com.backend.towork.member.dto.MemberDto;
-import com.backend.towork.member.entity.Member;
-import com.backend.towork.member.entity.Role;
+import com.backend.towork.member.dto.LoginDto;
+import com.backend.towork.member.dto.RegisterDto;
+import com.backend.towork.member.dto.LoginResponseDto;
+import com.backend.towork.member.dto.RegisterResponseDto;
 import com.backend.towork.member.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/member")
+@RequestMapping("/members")
 @RequiredArgsConstructor
 public class MemberController {
 
     private final MemberService memberService;
 
-    @PostMapping("/join")
-    public ResponseEntity<ResponseDto<?>> join(@RequestBody @Valid MemberDto memberDto, BindingResult result) {
+    @PostMapping("/register")
+    public ResponseEntity<RegisterResponseDto> register(@RequestBody @Valid RegisterDto registerDto, BindingResult result) {
         if (result.hasErrors()) {
-            ResponseDto<MemberDto> responseDto = ResponseDto.<MemberDto>builder()
-                    .resultCode(404)
-                    .message("unexpected error")
-                    .data(memberDto)
-                    .build();
-            return ResponseEntity.badRequest().body(responseDto);
+            return ResponseEntity.badRequest().body(null);
         }
-        Member member = Member.builder()
-                .email(memberDto.getEmail())
-                .password(memberDto.getPassword())
-                .role(Role.ROLE_USER)
-                .build();
 
-        log.info(member.getEmail());
-        memberService.join(member);
-        ResponseDto<Member> responseDto = ResponseDto.<Member>builder()
-                .resultCode(200)
-                .message("회원가입 성공")
-                .data(member)
-                .build();
-
+        RegisterResponseDto responseDto = memberService.register(registerDto);
         return ResponseEntity.ok().body(responseDto);
     }
 
-//    @PostMapping("/login")
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDto> login(@RequestBody @Valid LoginDto loginDto, BindingResult result) {
+        if (result.hasErrors()) {
+            return ResponseEntity.badRequest().body(null);
+        }
 
+        LoginResponseDto responseDto = memberService.login(loginDto.username(), loginDto.password());
+        return ResponseEntity.ok().body(responseDto);
+    }
 
+    @GetMapping("/test")
+    public String test() {
+        return "TEST";
+    }
 }
