@@ -1,18 +1,18 @@
 package com.backend.towork.jwt.domain;
 
-import jakarta.persistence.Id;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
 @Builder
 @Getter
-@RedisHash(value = "refresh")
+@RedisHash
 public class RefreshToken {
 
     @Id
-    private String username;
-
     private String refreshToken;
+
+    private String username;
 
 }

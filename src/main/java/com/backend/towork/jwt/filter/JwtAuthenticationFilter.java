@@ -1,6 +1,6 @@
 package com.backend.towork.jwt.filter;
 
-import com.backend.towork.jwt.service.JwtService;
+import com.backend.towork.jwt.JwtTokenProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,24 +20,30 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtService jwtService;
+    private final JwtTokenProvider jwtTokenProvider;
+
+    private final String excludeUri = "/members/";
 
     @Override
     protected void doFilterInternal(@NotNull HttpServletRequest request,
                                     @NotNull HttpServletResponse response, @NotNull FilterChain filterChain)
             throws ServletException, IOException {
-        String token = jwtService.resolveToken(request);
         String requestUri = request.getRequestURI();
 
-        if (token != null && jwtService.isValidToken(token)) {
-            Authentication authentication = jwtService.getAuthentication(token);
+        if (requestUri.startsWith(excludeUri)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        String token = jwtTokenProvider.resolveToken(request);
+
+        if (token != null && jwtTokenProvider.isValidToken(token)) {
+            Authentication authentication = jwtTokenProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
             log.debug("Security Context에 '{}' 인증 정보를 저장했습니다. uri: {}", authentication.getName(), requestUri);
         } else {
             log.debug("유효한 JWT 토큰이 없습니다. uri: {}", requestUri);
         }
-
-        filterChain.doFilter(request, response);
     }
 
 }

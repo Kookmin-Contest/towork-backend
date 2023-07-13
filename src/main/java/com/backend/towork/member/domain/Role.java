@@ -1,4 +1,4 @@
-package com.backend.towork.member.entity;
+package com.backend.towork.member.domain;
 
 import lombok.RequiredArgsConstructor;
 

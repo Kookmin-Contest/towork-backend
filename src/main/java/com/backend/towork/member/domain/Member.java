@@ -1,4 +1,4 @@
-package com.backend.towork.member.entity;
+package com.backend.towork.member.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;

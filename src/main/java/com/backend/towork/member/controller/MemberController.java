@@ -5,6 +5,7 @@ import com.backend.towork.member.dto.RegisterDto;
 import com.backend.towork.member.dto.RegisterResponseDto;
 import com.backend.towork.member.dto.TokenResponseDto;
 import com.backend.towork.member.service.MemberService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

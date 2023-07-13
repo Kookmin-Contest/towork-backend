@@ -1,7 +1,5 @@
-package com.backend.towork.jwt.service;
+package com.backend.towork.jwt;
 
-import com.backend.towork.jwt.domain.RefreshToken;
-import com.backend.towork.jwt.repository.RefreshTokenRedisRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -9,17 +7,24 @@ import io.jsonwebtoken.security.SecurityException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.security.Key;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class JwtService {
-
-    private final RefreshTokenRedisRepository refreshTokenRedisRepository;
+public class JwtTokenProvider {
 
     private final Key accessKey;
     private final Key refreshKey;
@@ -34,11 +39,9 @@ public class JwtService {
     private static final String USERNAME_CLAIM = "username";
 
     private static final long AT_EXPIRED_DURATION = 60 * 60 * 1000;
-    private static final long RT_EXPIRED_DURATION = 31 * 60 * 60 * 1000;
 
-    public JwtService(@Value("${jwt.accessKey}") String accessSecretKey,
-                      @Value("${jwt.refreshKey}") String refreshSecretKey, RefreshTokenRedisRepository refreshTokenRedisRepository) {
-        this.refreshTokenRedisRepository = refreshTokenRedisRepository;
+    public JwtTokenProvider(@Value("${jwt.accessKey}") String accessSecretKey,
+                            @Value("${jwt.refreshKey}") String refreshSecretKey) {
         byte[] accessKeyBytes = Decoders.BASE64.decode(accessSecretKey);
         byte[] refreshKeyBytes = Decoders.BASE64.decode(refreshSecretKey);
         this.accessKey = Keys.hmacShaKeyFor(accessKeyBytes);
@@ -61,8 +64,8 @@ public class JwtService {
 
         return Jwts.builder()
                 .setSubject(REFRESH_TOKEN_SUBJECT)
+                .claim(USERNAME_CLAIM, UUID.randomUUID())
                 .signWith(refreshKey, SignatureAlgorithm.HS512)
-                .setExpiration(new Date(now + RT_EXPIRED_DURATION))
                 .compact();
     }
 
@@ -72,15 +75,6 @@ public class JwtService {
             return bearerToken.substring(7);
         }
         return null;
-    }
-
-    public String getUsernameByAccessToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(accessKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
     }
 
     public boolean isValidToken(String token) {
@@ -104,10 +98,21 @@ public class JwtService {
         return false;
     }
 
-    public void saveRefreshToken(String username, String refreshToken) {
-        refreshTokenRedisRepository.save(RefreshToken.builder()
-                .username(username).refreshToken(refreshToken)
-                .build());
+    public Authentication getAuthentication(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(accessKey)
+                .build()
+                .parseClaimsJwt(token)
+                .getBody();
+
+        Collection<? extends GrantedAuthority> authorities =
+                Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(", "))
+                        .map(SimpleGrantedAuthority::new)
+                        .collect(Collectors.toList());
+
+        User principal = new User(claims.getSubject(), "", authorities);
+
+        return new UsernamePasswordAuthenticationToken(principal, token, authorities);
     }
 
 }

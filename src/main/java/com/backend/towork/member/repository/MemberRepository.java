@@ -1,6 +1,6 @@
 package com.backend.towork.member.repository;
 
-import com.backend.towork.member.entity.Member;
+import com.backend.towork.member.domain.Member;
 import org.springframework.data.repository.Repository;
 
 import java.util.Optional;

@@ -1,13 +1,15 @@
 package com.backend.towork.member.service;
 
-import com.backend.towork.global.security.JwtTokenProvider;
-import com.backend.towork.jwt.service.JwtService;
+import com.backend.towork.jwt.JwtTokenProvider;
+import com.backend.towork.jwt.domain.RefreshToken;
+import com.backend.towork.jwt.repository.RefreshTokenRepository;
+import com.backend.towork.member.domain.Member;
+import com.backend.towork.member.domain.Role;
 import com.backend.towork.member.dto.RegisterDto;
 import com.backend.towork.member.dto.RegisterResponseDto;
 import com.backend.towork.member.dto.TokenResponseDto;
-import com.backend.towork.member.entity.Member;
-import com.backend.towork.member.entity.Role;
 import com.backend.towork.member.repository.MemberRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,10 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class MemberService {
-    
+
     private final MemberRepository memberRepository;
-    private final AuthenticationManagerBuilder authenticationManagerBuilder;
-    private final JwtService jwtService;
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
 
@@ -50,13 +50,17 @@ public class MemberService {
     }
 
     public TokenResponseDto login(String username, String password) {
-//        UsernamePasswordAuthenticationToken authenticationToken =
-//                new UsernamePasswordAuthenticationToken(username, password);
-//        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        String accessToken = jwtTokenProvider.createAccessToken(username);
-        String refreshToken = jwtTokenProvider.createRefreshToken(username);
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(username, password);
+        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
-        redisTemplate.opsForValue().set(username, refreshToken, RT_EXPIRED_DURATION, TimeUnit.SECONDS);
+        String accessToken = jwtTokenProvider.createAccessToken(username);
+        String refreshToken = jwtTokenProvider.createRefreshToken();
+
+        refreshTokenRepository.save(RefreshToken.builder()
+                .username(username)
+                .refreshToken(refreshToken)
+                .build());
 
         return TokenResponseDto.builder()
                 .accessToken(accessToken)
@@ -64,25 +68,23 @@ public class MemberService {
                 .build();
     }
 
-    public TokenResponseDto reissue(HttpServletRequest request) {
+    public TokenResponseDto reissue(HttpServletRequest request) throws Exception {
         String refreshToken = jwtTokenProvider.resolveToken(request);
-        String username = jwtTokenProvider.getUsernameByToken(refreshToken);
+        // TODO: 상황별 에러처리 필요
+        String username = refreshTokenRepository.findByRefreshToken(refreshToken)
+                .orElseThrow(Exception::new);
 
-        String refreshTokenInRedis = (String) redisTemplate.opsForValue().get(username);
-        if (ObjectUtils.isEmpty(refreshToken)) {
-            log.debug("redis 안에 토큰 없음");
-        } else if (!refreshToken.equals(refreshTokenInRedis)) {
-            log.debug("토큰이 변조됨");
-        }
+        String reissuedAccessToken = jwtTokenProvider.createAccessToken(username);
+        String reissuedRefreshToken = jwtTokenProvider.createRefreshToken();
 
-        String newAccessToken = jwtTokenProvider.createAccessToken();
-        String newRefreshToken = jwtTokenProvider.createRefreshToken();
-
-        redisTemplate.opsForValue().set(username, refreshToken, RT_EXPIRED_DURATION, TimeUnit.SECONDS);
+        refreshTokenRepository.save(RefreshToken.builder()
+                .username(username)
+                .refreshToken(reissuedRefreshToken)
+                .build());
 
         return TokenResponseDto.builder()
-                .accessToken(newAccessToken)
-                .refreshToken(newRefreshToken)
+                .accessToken(reissuedAccessToken)
+                .refreshToken(reissuedRefreshToken)
                 .build();
     }
 }
