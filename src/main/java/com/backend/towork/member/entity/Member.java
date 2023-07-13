@@ -1,7 +1,11 @@
 package com.backend.towork.member.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -16,22 +20,22 @@ import java.time.LocalDateTime;
 @Getter
 public class Member {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
     private Long id;
 
-    @Column(nullable = false)
+    @NotNull
     private String username;
 
-    @Column(nullable = false)
+    @NotNull
     private String password;
 
+    @NotNull
     @CreatedDate
-    @Column(nullable = false)
     private LocalDateTime createDateTime;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private Role role;
 
 }

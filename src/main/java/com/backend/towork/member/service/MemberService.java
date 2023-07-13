@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class MemberService {
-    
+
     private final MemberRepository memberRepository;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
@@ -43,7 +43,7 @@ public class MemberService {
         memberRepository.save(member);
         return RegisterResponseDto.builder()
                 .username(member.getUsername())
-                .authority(member.getRole().getRoleType())
+                .authority(member.getRole().name())
                 .build();
     }
 

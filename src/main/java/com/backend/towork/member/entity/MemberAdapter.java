@@ -10,7 +10,7 @@ public class MemberAdapter extends User {
 
     public MemberAdapter(Member member) {
         super(member.getUsername(), member.getPassword(),
-                List.of(new SimpleGrantedAuthority(member.getRole().getRoleType())));
+                List.of(new SimpleGrantedAuthority(member.getRole().name())));
         this.member = member;
     }
 
