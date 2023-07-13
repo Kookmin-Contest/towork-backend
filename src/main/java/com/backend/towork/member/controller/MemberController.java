@@ -2,8 +2,8 @@ package com.backend.towork.member.controller;
 
 import com.backend.towork.member.dto.LoginDto;
 import com.backend.towork.member.dto.RegisterDto;
-import com.backend.towork.member.dto.LoginResponseDto;
 import com.backend.towork.member.dto.RegisterResponseDto;
+import com.backend.towork.member.dto.TokenResponseDto;
 import com.backend.towork.member.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,12 +31,12 @@ public class MemberController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(@RequestBody @Valid LoginDto loginDto, BindingResult result) {
+    public ResponseEntity<TokenResponseDto> login(@RequestBody @Valid LoginDto loginDto, BindingResult result) {
         if (result.hasErrors()) {
             return ResponseEntity.badRequest().body(null);
         }
 
-        LoginResponseDto responseDto = memberService.login(loginDto.username(), loginDto.password());
+        TokenResponseDto responseDto = memberService.login(loginDto.username(), loginDto.password());
         return ResponseEntity.ok().body(responseDto);
     }
 
