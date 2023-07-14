@@ -33,12 +33,8 @@ public class JwtTokenProvider {
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String GRANT_TYPE = "Bearer ";
 
-    private static final String ACCESS_TOKEN_SUBJECT = "access_token";
-    private static final String REFRESH_TOKEN_SUBJECT = "refresh_token";
-
-    private static final String USERNAME_CLAIM = "username";
-
-    private static final long AT_EXPIRED_DURATION = 60 * 60 * 1000;
+    private static final long AT_EXPIRED_DURATION = 60 * 1000;
+    private static final long RT_EXPIRED_DURATION = 60 * 60 * 1000;
 
     public JwtTokenProvider(@Value("${jwt.accessKey}") String accessSecretKey,
                             @Value("${jwt.refreshKey}") String refreshSecretKey) {
@@ -48,24 +44,30 @@ public class JwtTokenProvider {
         this.refreshKey = Keys.hmacShaKeyFor(refreshKeyBytes);
     }
 
-    public String createAccessToken(String username) {
+    public String createAccessToken(Authentication authentication) {
+        String authorities = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
         long now = (new Date()).getTime();
-
         return Jwts.builder()
-                .setSubject(ACCESS_TOKEN_SUBJECT)
-                .claim(USERNAME_CLAIM, username)
+                .setSubject(authentication.getName())
+                .claim(AUTHORITIES_KEY, authorities)
                 .signWith(accessKey, SignatureAlgorithm.HS512)
                 .setExpiration(new Date(now + AT_EXPIRED_DURATION))
                 .compact();
     }
 
-    public String createRefreshToken() {
+    public String createRefreshToken(Authentication authentication) {
+        String authorities = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
         long now = (new Date()).getTime();
 
         return Jwts.builder()
-                .setSubject(REFRESH_TOKEN_SUBJECT)
-                .claim(USERNAME_CLAIM, UUID.randomUUID())
+                .setSubject(authentication.getName())
+                .claim(AUTHORITIES_KEY, authorities)
                 .signWith(refreshKey, SignatureAlgorithm.HS512)
+                .setExpiration(new Date(now + RT_EXPIRED_DURATION))
                 .compact();
     }
 
@@ -77,10 +79,18 @@ public class JwtTokenProvider {
         return null;
     }
 
-    public boolean isValidToken(String token) {
+    public boolean isValidToken(String token, String tokenType) {
+        Key signingkey;
+        if (tokenType.equals("refresh")) {
+            signingkey = refreshKey;
+        }
+        else {
+            signingkey = accessKey;
+        }
+
         try {
             Jwts.parserBuilder()
-                    .setSigningKey(accessKey)
+                    .setSigningKey(signingkey)
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
@@ -98,11 +108,19 @@ public class JwtTokenProvider {
         return false;
     }
 
-    public Authentication getAuthentication(String token) {
+    public Authentication getAuthentication(String token, String tokenType) {
+        Key signingkey;
+        if (tokenType.equals("refresh")) {
+            signingkey = refreshKey;
+        }
+        else {
+            signingkey = accessKey;
+        }
+
         Claims claims = Jwts.parserBuilder()
-                .setSigningKey(accessKey)
+                .setSigningKey(signingkey)
                 .build()
-                .parseClaimsJwt(token)
+                .parseClaimsJws(token)
                 .getBody();
 
         Collection<? extends GrantedAuthority> authorities =

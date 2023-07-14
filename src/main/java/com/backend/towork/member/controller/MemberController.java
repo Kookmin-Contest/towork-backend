@@ -26,8 +26,9 @@ public class MemberController {
         if (result.hasErrors()) {
             return ResponseEntity.badRequest().body(null);
         }
-
+        log.info("aaaaa");
         RegisterResponseDto responseDto = memberService.register(registerDto);
+        log.info(responseDto.toString());
         return ResponseEntity.ok().body(responseDto);
     }
 
@@ -38,6 +39,12 @@ public class MemberController {
         }
 
         TokenResponseDto responseDto = memberService.login(loginDto.username(), loginDto.password());
+        return ResponseEntity.ok().body(responseDto);
+    }
+
+    @PostMapping("/reissue")
+    public ResponseEntity<TokenResponseDto> reissue(HttpServletRequest request) throws Exception {
+        TokenResponseDto responseDto = memberService.reissue(request);
         return ResponseEntity.ok().body(responseDto);
     }
 

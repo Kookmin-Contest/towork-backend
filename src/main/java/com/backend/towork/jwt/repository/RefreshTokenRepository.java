@@ -7,6 +7,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Repository
@@ -14,11 +15,11 @@ import java.util.Optional;
 public class RefreshTokenRepository {
 
     private final RedisTemplate<String, String> redisTemplate;
-
+    private static final long RT_EXPIRED_DURATION = 60 * 1000;
     public void save(final RefreshToken refreshToken) {
         log.info("token: {}", refreshToken.getRefreshToken());
         log.info("username: {}", refreshToken.getUsername());
-        redisTemplate.opsForValue().set(refreshToken.getRefreshToken(), refreshToken.getUsername());
+        redisTemplate.opsForValue().set(refreshToken.getRefreshToken(), refreshToken.getUsername(), RT_EXPIRED_DURATION, TimeUnit.MILLISECONDS);
     }
 
     public Optional<String> findByRefreshToken(final String refreshToken) {

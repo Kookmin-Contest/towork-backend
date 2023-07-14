@@ -28,6 +28,8 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
     @Transactional
     public RegisterResponseDto register(RegisterDto registerDto) {
@@ -53,10 +55,8 @@ public class MemberService {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(username, password);
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-
-        String accessToken = jwtTokenProvider.createAccessToken(username);
-        String refreshToken = jwtTokenProvider.createRefreshToken();
-
+        String accessToken = jwtTokenProvider.createAccessToken(authentication);
+        String refreshToken = jwtTokenProvider.createRefreshToken(authentication);
         refreshTokenRepository.save(RefreshToken.builder()
                 .username(username)
                 .refreshToken(refreshToken)
@@ -73,9 +73,9 @@ public class MemberService {
         // TODO: 상황별 에러처리 필요
         String username = refreshTokenRepository.findByRefreshToken(refreshToken)
                 .orElseThrow(Exception::new);
-
-        String reissuedAccessToken = jwtTokenProvider.createAccessToken(username);
-        String reissuedRefreshToken = jwtTokenProvider.createRefreshToken();
+        Authentication authentication = jwtTokenProvider.getAuthentication(refreshToken, "refresh");
+        String reissuedAccessToken = jwtTokenProvider.createAccessToken(authentication);
+        String reissuedRefreshToken = jwtTokenProvider.createRefreshToken(authentication);
 
         refreshTokenRepository.save(RefreshToken.builder()
                 .username(username)
