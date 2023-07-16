@@ -7,12 +7,12 @@ import org.springframework.data.redis.core.RedisHash;
 
 @Builder
 @Getter
-@RedisHash
+@RedisHash(value = "refresh_token")
 public class RefreshToken {
 
     @Id
-    private String refreshToken;
-
     private String username;
+
+    private String refreshToken;
 
 }

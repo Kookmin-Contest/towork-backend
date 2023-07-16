@@ -1,6 +1,7 @@
 package com.backend.towork.jwt.filter;
 
-import com.backend.towork.jwt.JwtTokenProvider;
+import com.backend.towork.jwt.utils.JwtTokenKeys;
+import com.backend.towork.jwt.utils.JwtTokenProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,7 +23,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
 
-    private String tokenType = "access";
+    private static final String EXCLUDE_URI = "/auth/";
 
     @Override
     protected void doFilterInternal(@NotNull HttpServletRequest request,
@@ -30,15 +31,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String requestUri = request.getRequestURI();
-        String excludeUri = "/reissue";
-
-        if (requestUri.contains(excludeUri)) {
-            tokenType = "refresh";
+        if (requestUri.startsWith(EXCLUDE_URI)) {
+            filterChain.doFilter(request, response);
+            return;
         }
+
         String token = jwtTokenProvider.resolveToken(request);
 
-        if (token != null && jwtTokenProvider.isValidToken(token, tokenType)) {
-            Authentication authentication = jwtTokenProvider.getAuthentication(token, tokenType);
+        if (token != null && jwtTokenProvider.validateToken(token, JwtTokenKeys.ACCESS_SECRET_KEY)) {
+            Authentication authentication = jwtTokenProvider.getAuthentication(token, JwtTokenKeys.ACCESS_SECRET_KEY);
             SecurityContextHolder.getContext().setAuthentication(authentication);
             log.debug("Security Context에 '{}' 인증 정보를 저장했습니다. uri: {}", authentication.getName(), requestUri);
         } else {
