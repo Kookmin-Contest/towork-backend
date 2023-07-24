@@ -1,5 +1,6 @@
 package com.backend.towork.jwt.utils;
 
+import com.backend.towork.member.principal.PrincipalDetails;
 import com.backend.towork.member.service.UserDetailsServiceImpl;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.SecurityException;
@@ -26,22 +27,22 @@ public class JwtTokenProvider {
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String GRANT_TYPE = "Bearer ";
 
-    private static final long AT_EXPIRED_DURATION = 60 * 1000;
-    private static final long RT_EXPIRED_DURATION = 60 * 60 * 1000;
+    private static final long AT_EXPIRED_DURATION = 30 * 60 * 1000;
+    private static final long RT_EXPIRED_DURATION = 24 * 60 * 60 * 1000;
 
-    public String generateToken(UserDetails userDetails) {
-        return buildToken(userDetails, JwtTokenKeys.ACCESS_SECRET_KEY, AT_EXPIRED_DURATION);
+    public String generateToken(PrincipalDetails principalDetails) {
+        return buildToken(principalDetails, JwtTokenKeys.ACCESS_SECRET_KEY, AT_EXPIRED_DURATION);
     }
 
-    public String generateRefreshToken(UserDetails userDetails) {
-        return buildToken(userDetails, JwtTokenKeys.REFRESH_SECRET_KEY, RT_EXPIRED_DURATION);
+    public String generateRefreshToken(PrincipalDetails principalDetails) {
+        return buildToken(principalDetails, JwtTokenKeys.REFRESH_SECRET_KEY, RT_EXPIRED_DURATION);
     }
 
-    private String buildToken(UserDetails userDetails, Key secretKey, long expiration) {
+    private String buildToken(PrincipalDetails principalDetails, Key secretKey, long expiration) {
         long now = System.currentTimeMillis();
 
         return Jwts.builder()
-                .setSubject(userDetails.getUsername())
+                .setSubject(principalDetails.getUsername())
                 .setIssuedAt(new Date(now))
                 .setExpiration(new Date(now + expiration))
                 .signWith(secretKey, SignatureAlgorithm.HS512)

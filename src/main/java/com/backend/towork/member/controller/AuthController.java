@@ -40,6 +40,22 @@ public class AuthController {
         return ResponseEntity.ok().body(responseDto);
     }
 
+    @GetMapping("/social-login")
+    public ResponseEntity<?>  socialLogin(@RequestParam(value = "access_token", required = false) String accessToken,
+                                          @RequestParam(value = "refresh_token", required = false) String refreshToken,
+                                          @RequestParam(value = "error", required = false) String errorMessage) {
+        if (errorMessage == null) {
+            TokenResponseDto responseDto = TokenResponseDto.builder()
+                    .accessToken(accessToken)
+                    .refreshToken(refreshToken)
+                    .build();
+            return ResponseEntity.ok().body(responseDto);
+        }
+        else {
+            return ResponseEntity.badRequest().body(errorMessage);
+        }
+    }
+
     @PostMapping("/reissue")
     public ResponseEntity<TokenResponseDto> reissue(HttpServletRequest request) throws Exception {
         TokenResponseDto responseDto = authService.reissue(request);
