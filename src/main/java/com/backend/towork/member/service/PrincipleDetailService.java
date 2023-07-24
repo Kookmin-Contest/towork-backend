@@ -1,5 +1,7 @@
 package com.backend.towork.member.service;
 
+import com.backend.towork.member.domain.entity.Member;
+import com.backend.towork.member.domain.entity.PrincipleDetails;
 import com.backend.towork.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,8 +17,9 @@ public class PrincipleDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(final String email) throws UsernameNotFoundException {
-        return memberRepository.findByEmail(email)
+        Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException(email + " -> 데이터베이스에서 찾을 수 없습니다."));
+        return new PrincipleDetails(member);
     }
 
 }

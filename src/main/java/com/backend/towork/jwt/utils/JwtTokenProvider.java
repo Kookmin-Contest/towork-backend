@@ -39,7 +39,7 @@ public class JwtTokenProvider {
         long now = System.currentTimeMillis();
 
         return Jwts.builder()
-                .setSubject(member.getUsername())
+                .setSubject(member.getEmail())
                 .setIssuedAt(new Date(now))
                 .setExpiration(new Date(now + expiration))
                 .signWith(secretKey, SignatureAlgorithm.HS512)
