@@ -1,17 +1,20 @@
 package com.backend.towork.member.controller;
 
-import com.backend.towork.member.dto.LoginDto;
-import com.backend.towork.member.dto.RegisterDto;
-import com.backend.towork.member.dto.RegisterResponseDto;
-import com.backend.towork.member.dto.TokenResponseDto;
+import com.backend.towork.global.domain.dto.response.DataResponse;
+import com.backend.towork.global.domain.dto.response.SuccessResponse;
+import com.backend.towork.member.domain.dto.request.LoginRequest;
+import com.backend.towork.member.domain.dto.request.MemberRequest;
+import com.backend.towork.member.domain.dto.response.TokenResponse;
 import com.backend.towork.member.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
@@ -21,29 +24,25 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @PostMapping("/register")
-    public ResponseEntity<RegisterResponseDto> register(@RequestBody @Valid RegisterDto registerDto, BindingResult result) {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(null);
-        }
-        RegisterResponseDto responseDto = authService.register(registerDto);
-        return ResponseEntity.ok().body(responseDto);
+    @PostMapping("/signup")
+    public ResponseEntity<SuccessResponse> signUp(@RequestBody @Valid final MemberRequest memberRequest) {
+        authService.signUp(memberRequest);
+        return ResponseEntity.ok()
+                .body(new SuccessResponse());
     }
 
     @PostMapping("/login")
-    public ResponseEntity<TokenResponseDto> login(@RequestBody @Valid LoginDto loginDto, BindingResult result) {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(null);
-        }
-
-        TokenResponseDto responseDto = authService.login(loginDto.username(), loginDto.password());
-        return ResponseEntity.ok().body(responseDto);
+    public ResponseEntity<DataResponse<TokenResponse>> login(@RequestBody @Valid LoginRequest loginRequest) {
+        TokenResponse tokenResponse = authService.login(loginRequest);
+        return ResponseEntity.ok()
+                .body(new DataResponse<>(tokenResponse));
     }
 
     @PostMapping("/reissue")
-    public ResponseEntity<TokenResponseDto> reissue(HttpServletRequest request) throws Exception {
-        TokenResponseDto responseDto = authService.reissue(request);
-        return ResponseEntity.ok().body(responseDto);
+    public ResponseEntity<DataResponse<TokenResponse>> reissue(HttpServletRequest request) throws Exception {
+        TokenResponse tokenResponse = authService.reissue(request);
+        return ResponseEntity.ok()
+                .body(new DataResponse<>(tokenResponse));
     }
 
     // TODO: Implement Logout

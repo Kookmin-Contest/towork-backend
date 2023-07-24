@@ -1,24 +1,27 @@
 package com.backend.towork.member.service;
 
-import com.backend.towork.jwt.utils.JwtTokenProvider;
+import com.backend.towork.global.utils.DateTimeUtils;
 import com.backend.towork.jwt.domain.RefreshToken;
-import com.backend.towork.jwt.utils.JwtTokenKeys;
 import com.backend.towork.jwt.repository.RefreshTokenRepository;
-import com.backend.towork.member.domain.Member;
-import com.backend.towork.member.domain.Role;
-import com.backend.towork.member.dto.RegisterDto;
-import com.backend.towork.member.dto.RegisterResponseDto;
-import com.backend.towork.member.dto.TokenResponseDto;
+import com.backend.towork.jwt.utils.JwtTokenKeys;
+import com.backend.towork.jwt.utils.JwtTokenProvider;
+import com.backend.towork.member.domain.dto.request.LoginRequest;
+import com.backend.towork.member.domain.dto.request.MemberRequest;
+import com.backend.towork.member.domain.dto.response.TokenResponse;
+import com.backend.towork.member.domain.entity.Member;
+import com.backend.towork.member.domain.entity.Role;
+import com.backend.towork.member.handler.exception.EmailExistsException;
+import com.backend.towork.member.handler.exception.InvalidEmailPasswordException;
+import com.backend.towork.member.handler.exception.InvalidRefreshToken;
 import com.backend.towork.member.repository.MemberRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
 
 @Slf4j
 @Service
@@ -30,76 +33,60 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
     private void saveRefreshToken(String username, String refreshToken) {
-        refreshTokenRepository.save(RefreshToken.builder()
-                .username(username)
-                .refreshToken(refreshToken)
-                .build());
+        refreshTokenRepository.save(RefreshToken.builder().username(username).refreshToken(refreshToken).build());
+    }
+
+    private boolean emailExists(String email) {
+        return memberRepository.findByEmail(email).isPresent();
     }
 
     @Transactional
-    public RegisterResponseDto register(RegisterDto registerDto) {
-        if (memberRepository.findByUsername(registerDto.username()).isPresent()) {
-            throw new IllegalStateException("동일한 이메일을 가진 아이디가 있습니다.");
+    public void signUp(final MemberRequest memberRequest) {
+        if (emailExists(memberRequest.getEmail())) {
+            throw new EmailExistsException();
         }
 
-        String encodedPassword = passwordEncoder.encode(registerDto.password());
+        String encodedPassword = passwordEncoder.encode(memberRequest.getPassword());
 
-        Member member = Member.builder()
-                .username(registerDto.username())
-                .password(encodedPassword)
-                .role(Role.USER)
-                .build();
+        Member member = Member.builder().email(memberRequest.getEmail()).password(encodedPassword).name(memberRequest.getName()).birthDate(LocalDate.parse(memberRequest.getBirthDate(), DateTimeUtils.DTF_yyyyMMdd)).phoneNumber(memberRequest.getPhoneNumber()).role(Role.USER).build();
         memberRepository.save(member);
-        return RegisterResponseDto.builder()
-                .username(member.getUsername())
-                .authority(member.getRole().name())
-                .build();
     }
 
-    public TokenResponseDto login(String username, String password) {
-        authenticationManagerBuilder.getObject().authenticate(
-                new UsernamePasswordAuthenticationToken(username, password)
-        );
+    public TokenResponse login(LoginRequest loginRequest) {
+        String email = loginRequest.getEmail();
+        Member member = memberRepository.findByEmail(email).orElseThrow(InvalidEmailPasswordException::new);
 
-        Member member = memberRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException(""));
+        if (!passwordEncoder.matches(loginRequest.getPassword(), member.getPassword())) {
+            throw new InvalidEmailPasswordException();
+        }
 
         String accessToken = jwtTokenProvider.generateToken(member);
         String refreshToken = jwtTokenProvider.generateRefreshToken(member);
-        saveRefreshToken(username, refreshToken);
+        saveRefreshToken(email, refreshToken);
 
-        return TokenResponseDto.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
+        return TokenResponse.builder().accessToken(accessToken).refreshToken(refreshToken).build();
     }
 
-    public TokenResponseDto reissue(HttpServletRequest request) throws Exception {
+    public TokenResponse reissue(HttpServletRequest request) {
         String refreshToken = jwtTokenProvider.resolveToken(request);
 
         jwtTokenProvider.validateToken(refreshToken, JwtTokenKeys.REFRESH_SECRET_KEY);
 
-        String username = jwtTokenProvider.extractUsername(refreshToken, JwtTokenKeys.REFRESH_SECRET_KEY);
-        RefreshToken refreshTokenInRedis = refreshTokenRepository.findById(username)
-                .orElseThrow(() -> new Exception("redis 내에 주어진 username에 해당하는 token이 없습니다."));
+        String email = jwtTokenProvider.extractEmail(refreshToken, JwtTokenKeys.REFRESH_SECRET_KEY);
+        RefreshToken refreshTokenInRedis = refreshTokenRepository.findById(email).orElseThrow(() -> new InvalidRefreshToken("Redis DB 내에 해당 토큰이 존재하지 않습니다."));
 
         if (!refreshToken.equals(refreshTokenInRedis.getRefreshToken())) {
-            throw new Exception("request의 refresh token과 DB의 refresh token과 일치하지 않습니다.");
+            throw new InvalidRefreshToken("주어진 refresh token과 DB의 refresh token이 일치하지 않습니다.");
         }
 
-        Member member = memberRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException(""));
+        Member member = memberRepository.findByEmail(email).orElseThrow(InvalidEmailPasswordException::new);
 
         String reissuedAccessToken = jwtTokenProvider.generateToken(member);
         String reissuedRefreshToken = jwtTokenProvider.generateRefreshToken(member);
-        saveRefreshToken(username, reissuedRefreshToken);
+        saveRefreshToken(email, reissuedRefreshToken);
 
-        return TokenResponseDto.builder()
-                .accessToken(reissuedAccessToken)
-                .refreshToken(reissuedRefreshToken)
-                .build();
+        return TokenResponse.builder().accessToken(reissuedAccessToken).refreshToken(reissuedRefreshToken).build();
     }
 }

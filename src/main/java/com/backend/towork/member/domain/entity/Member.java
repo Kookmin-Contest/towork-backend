@@ -1,5 +1,6 @@
-package com.backend.towork.member.domain;
+package com.backend.towork.member.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -9,6 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -27,10 +29,20 @@ public class Member implements UserDetails {
     private Long id;
 
     @NotNull
-    private String username;
+    private String email;
 
+    @JsonIgnore
     @NotNull
     private String password;
+
+    @NotNull
+    private String name;
+
+    @Setter
+    private LocalDate birthDate;
+
+    @Setter
+    private String phoneNumber;
 
     @NotNull
     @CreatedDate
@@ -43,6 +55,11 @@ public class Member implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
     }
 
     @Override

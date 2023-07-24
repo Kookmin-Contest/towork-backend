@@ -1,8 +1,8 @@
 package com.backend.towork.jwt.utils;
 
-import com.backend.towork.member.service.UserDetailsServiceImpl;
+import com.backend.towork.member.domain.entity.Member;
+import com.backend.towork.member.service.PrincipleDetailService;
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.SecurityException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,27 +21,25 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class JwtTokenProvider {
 
-    private final UserDetailsServiceImpl userDetailsServiceImpl;
-
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String GRANT_TYPE = "Bearer ";
-
     private static final long AT_EXPIRED_DURATION = 60 * 1000;
     private static final long RT_EXPIRED_DURATION = 60 * 60 * 1000;
+    private final PrincipleDetailService principleDetailService;
 
-    public String generateToken(UserDetails userDetails) {
-        return buildToken(userDetails, JwtTokenKeys.ACCESS_SECRET_KEY, AT_EXPIRED_DURATION);
+    public String generateToken(Member member) {
+        return buildToken(member, JwtTokenKeys.ACCESS_SECRET_KEY, AT_EXPIRED_DURATION);
     }
 
-    public String generateRefreshToken(UserDetails userDetails) {
-        return buildToken(userDetails, JwtTokenKeys.REFRESH_SECRET_KEY, RT_EXPIRED_DURATION);
+    public String generateRefreshToken(Member member) {
+        return buildToken(member, JwtTokenKeys.REFRESH_SECRET_KEY, RT_EXPIRED_DURATION);
     }
 
-    private String buildToken(UserDetails userDetails, Key secretKey, long expiration) {
+    private String buildToken(Member member, Key secretKey, long expiration) {
         long now = System.currentTimeMillis();
 
         return Jwts.builder()
-                .setSubject(userDetails.getUsername())
+                .setSubject(member.getUsername())
                 .setIssuedAt(new Date(now))
                 .setExpiration(new Date(now + expiration))
                 .signWith(secretKey, SignatureAlgorithm.HS512)
@@ -56,7 +54,11 @@ public class JwtTokenProvider {
         return null;
     }
 
-    // TODO: Throw Error and handle it
+    /**
+     * TODO: throw error and handle it
+     * 해당 error를 handling하기 위해선 AuthenticationEntryPoint라는 것을 사용해서
+     * Filter 단에서 에러를 처리해야 합니다!!
+     */
     public boolean validateToken(String token, Key secretKey) {
         try {
             Jwts.parserBuilder()
@@ -84,7 +86,7 @@ public class JwtTokenProvider {
                 .parseClaimsJws(token)
                 .getBody();
 
-        UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(claims.getSubject());
+        UserDetails userDetails = principleDetailService.loadUserByUsername(claims.getSubject());
 
         return new UsernamePasswordAuthenticationToken(userDetails, token, userDetails.getAuthorities());
     }
@@ -102,7 +104,7 @@ public class JwtTokenProvider {
         return claimsResolver.apply(claims);
     }
 
-    public String extractUsername(String token, Key secretKey) {
+    public String extractEmail(String token, Key secretKey) {
         return extractClaim(token, Claims::getSubject, secretKey);
     }
 
