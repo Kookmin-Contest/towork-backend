@@ -30,10 +30,17 @@ public class SecurityConfig {
                 .headers(header -> header.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                // 인증 관련 URI 제외
+                                // API docs 관련
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+
+                                // 인증 관련
                                 "/auth/**"
                         ).permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
+                        .requestMatchers(
+                                // h2 database console
+                                new AntPathRequestMatcher("/h2-console/**")
+                        ).permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

@@ -4,6 +4,7 @@ import com.backend.towork.global.domain.dto.response.ErrorResponse;
 import com.backend.towork.global.handler.exception.ExpectedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -22,6 +23,13 @@ public class GlobalExpectedHandler {
         return ResponseEntity
                 .status(e.getStatus())
                 .body(new ErrorResponse(e.getStatus(), e.getMessage()));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleExpectedException(final MethodArgumentNotValidException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
     }
 
 }
