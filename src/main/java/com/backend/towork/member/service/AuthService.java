@@ -1,6 +1,5 @@
 package com.backend.towork.member.service;
 
-import com.backend.towork.global.utils.DateTimeUtils;
 import com.backend.towork.jwt.domain.RefreshToken;
 import com.backend.towork.jwt.repository.RefreshTokenRepository;
 import com.backend.towork.jwt.utils.JwtTokenKeys;
@@ -22,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 @Slf4j
 @Service
@@ -50,7 +50,14 @@ public class AuthService {
 
         String encodedPassword = passwordEncoder.encode(memberRequest.getPassword());
 
-        Member member = Member.builder().email(memberRequest.getEmail()).password(encodedPassword).name(memberRequest.getName()).birthDate(LocalDate.parse(memberRequest.getBirthDate(), DateTimeUtils.DTF_yyyyMMdd)).phoneNumber(memberRequest.getPhoneNumber()).role(Role.USER).build();
+        Member member = Member.builder()
+                .email(memberRequest.getEmail())
+                .password(encodedPassword)
+                .name(memberRequest.getName())
+                .birthDate(LocalDate.parse(memberRequest.getBirthDate(), DateTimeFormatter.ISO_DATE))
+                .phoneNumber(memberRequest.getPhoneNumber())
+                .role(Role.USER)
+                .build();
         memberRepository.save(member);
     }
 

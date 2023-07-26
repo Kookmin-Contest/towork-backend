@@ -7,11 +7,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 
 @Getter
-public class PrincipleDetails implements UserDetails {
+public class PrincipalDetails implements UserDetails {
 
     private final Member member;
 
-    public PrincipleDetails(Member member) {
+    public PrincipalDetails(Member member) {
         this.member = member;
     }
 

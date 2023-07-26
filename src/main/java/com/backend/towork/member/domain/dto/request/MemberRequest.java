@@ -19,10 +19,12 @@ public class MemberRequest {
     @Pattern(regexp = "^[a-zA-Z가-힣]{2,10}$")
     private String name;
 
-    @Pattern(regexp = "^01[0179][0-9]{7,8}$")
+    @Pattern(regexp = "^01([0|1|6|7|8|9])-([0-9]{3,4})-([0-9]{4})$")
     private String phoneNumber;
 
-    @Pattern(regexp = "^(19[0-9][0-9]|20\\d{2})(0[0-9]|1[0-2])(0[1-9]|[1-2][0-9]|3[0-1])$")
+    @Pattern(regexp = "^(19[0-9][0-9]|20\\d{2})-(0[0-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$")
     private String birthDate;
 
+    public MemberRequest() {
+    }
 }

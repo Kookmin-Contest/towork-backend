@@ -1,7 +1,7 @@
 package com.backend.towork.jwt.utils;
 
 import com.backend.towork.member.domain.entity.Member;
-import com.backend.towork.member.service.PrincipleDetailService;
+import com.backend.towork.member.service.PrincipalDetailService;
 import io.jsonwebtoken.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +25,7 @@ public class JwtTokenProvider {
     private static final String GRANT_TYPE = "Bearer ";
     private static final long AT_EXPIRED_DURATION = 60 * 1000;
     private static final long RT_EXPIRED_DURATION = 60 * 60 * 1000;
-    private final PrincipleDetailService principleDetailService;
+    private final PrincipalDetailService principalDetailService;
 
     public String generateToken(Member member) {
         return buildToken(member, JwtTokenKeys.ACCESS_SECRET_KEY, AT_EXPIRED_DURATION);
@@ -86,7 +86,7 @@ public class JwtTokenProvider {
                 .parseClaimsJws(token)
                 .getBody();
 
-        UserDetails userDetails = principleDetailService.loadUserByUsername(claims.getSubject());
+        UserDetails userDetails = principalDetailService.loadUserByUsername(claims.getSubject());
 
         return new UsernamePasswordAuthenticationToken(userDetails, token, userDetails.getAuthorities());
     }

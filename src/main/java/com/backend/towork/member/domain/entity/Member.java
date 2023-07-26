@@ -47,4 +47,11 @@ public class Member {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    public void changePhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void changeName(String name) {
+        this.name = name;
+    }
 }
