@@ -1,18 +1,27 @@
 package com.backend.towork.global.handler;
 
 import com.backend.towork.global.domain.dto.response.ErrorResponse;
-import com.backend.towork.global.utils.ErrorCode;
+import com.backend.towork.global.handler.exception.ExpectedException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
-public class GlobalExpectedHandler implements ControllerHandler {
+public class GlobalExpectedHandler {
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> methodArgumentNotValidException(MethodArgumentNotValidException e) {
-        return createErrorResponseEntity(ErrorCode.METHOD_ARGUMENT_NOT_VALID);
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ErrorResponse> handleUnExpectedException(final RuntimeException e) {
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
+    }
+
+    @ExceptionHandler(ExpectedException.class)
+    public ResponseEntity<ErrorResponse> handleExpectedException(final ExpectedException e) {
+        return ResponseEntity
+                .status(e.getStatus())
+                .body(new ErrorResponse(e.getStatus(), e.getMessage()));
     }
 
 }

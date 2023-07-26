@@ -1,5 +1,6 @@
 package com.backend.towork.member.service;
 
+import com.backend.towork.global.handler.exception.ExpectedException;
 import com.backend.towork.jwt.domain.RefreshToken;
 import com.backend.towork.jwt.repository.RefreshTokenRepository;
 import com.backend.towork.jwt.utils.JwtTokenKeys;
@@ -9,9 +10,6 @@ import com.backend.towork.member.domain.dto.request.MemberRequest;
 import com.backend.towork.member.domain.dto.response.TokenResponse;
 import com.backend.towork.member.domain.entity.Member;
 import com.backend.towork.member.domain.entity.Role;
-import com.backend.towork.member.handler.exception.EmailExistsException;
-import com.backend.towork.member.handler.exception.InvalidEmailPasswordException;
-import com.backend.towork.member.handler.exception.InvalidRefreshToken;
 import com.backend.towork.member.repository.MemberRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.NoSuchElementException;
 
 @Slf4j
 @Service
@@ -45,7 +44,7 @@ public class AuthService {
     @Transactional
     public void signUp(final MemberRequest memberRequest) {
         if (emailExists(memberRequest.getEmail())) {
-            throw new EmailExistsException();
+            throw new ExpectedException(400, "이미 존재하는 이메일입니다.");
         }
 
         String encodedPassword = passwordEncoder.encode(memberRequest.getPassword());
@@ -63,10 +62,11 @@ public class AuthService {
 
     public TokenResponse login(LoginRequest loginRequest) {
         String email = loginRequest.getEmail();
-        Member member = memberRepository.findByEmail(email).orElseThrow(InvalidEmailPasswordException::new);
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new ExpectedException(401, "잘못된 아이디 또는 패스워드 입니다."));
 
         if (!passwordEncoder.matches(loginRequest.getPassword(), member.getPassword())) {
-            throw new InvalidEmailPasswordException();
+            throw new ExpectedException(401, "잘못된 아이디 또는 패스워드 입니다.");
         }
 
         String accessToken = jwtTokenProvider.generateToken(member);
@@ -82,13 +82,15 @@ public class AuthService {
         jwtTokenProvider.validateToken(refreshToken, JwtTokenKeys.REFRESH_SECRET_KEY);
 
         String email = jwtTokenProvider.extractEmail(refreshToken, JwtTokenKeys.REFRESH_SECRET_KEY);
-        RefreshToken refreshTokenInRedis = refreshTokenRepository.findById(email).orElseThrow(() -> new InvalidRefreshToken("Redis DB 내에 해당 토큰이 존재하지 않습니다."));
+        RefreshToken refreshTokenInRedis = refreshTokenRepository.findById(email)
+                .orElseThrow(() -> new ExpectedException(401, "DB 내에 해당 토큰이 존재하지 않습니다."));
 
         if (!refreshToken.equals(refreshTokenInRedis.getRefreshToken())) {
-            throw new InvalidRefreshToken("주어진 refresh token과 DB의 refresh token이 일치하지 않습니다.");
+            throw new ExpectedException(401, "주어진 refresh token과 DB의 refresh token이 일치하지 않습니다.");
         }
 
-        Member member = memberRepository.findByEmail(email).orElseThrow(InvalidEmailPasswordException::new);
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(NoSuchElementException::new);
 
         String reissuedAccessToken = jwtTokenProvider.generateToken(member);
         String reissuedRefreshToken = jwtTokenProvider.generateRefreshToken(member);

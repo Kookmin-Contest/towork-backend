@@ -1,17 +1,8 @@
 package com.backend.towork.global.domain.dto.response;
 
-import lombok.Getter;
+import lombok.Builder;
 
-@Getter
-public class ErrorResponse extends BaseResponse {
-
-    private String code;
-    private String message;
-
-    public ErrorResponse(String code, String message) {
-        super("FAIL");
-        this.code = code;
-        this.message = message;
-    }
+@Builder
+public record ErrorResponse(int code, String message) {
 
 }

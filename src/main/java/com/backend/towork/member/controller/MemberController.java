@@ -1,7 +1,5 @@
 package com.backend.towork.member.controller;
 
-import com.backend.towork.global.domain.dto.response.DataResponse;
-import com.backend.towork.global.domain.dto.response.SuccessResponse;
 import com.backend.towork.member.domain.dto.request.NameUpdateRequest;
 import com.backend.towork.member.domain.dto.request.PhoneUpdateRequest;
 import com.backend.towork.member.domain.dto.response.MemberResponse;
@@ -23,26 +21,26 @@ public class MemberController {
     private final MemberService memberService;
 
     @GetMapping("/info")
-    public ResponseEntity<DataResponse<MemberResponse>> getMemberInfo(@AuthenticationPrincipal PrincipalDetails principal) {
+    public ResponseEntity<MemberResponse> getMemberInfo(@AuthenticationPrincipal PrincipalDetails principal) {
         MemberResponse memberResponse = memberService.getMemberInfo(principal.getMember());
         return ResponseEntity.ok()
-                .body(new DataResponse<>(memberResponse));
+                .body(memberResponse);
     }
 
     @PatchMapping("/phone")
-    public ResponseEntity<SuccessResponse> modifyPhone(@Valid @RequestBody PhoneUpdateRequest phoneUpdateRequest,
+    public ResponseEntity<?> modifyPhone(@Valid @RequestBody PhoneUpdateRequest phoneUpdateRequest,
                                                        @AuthenticationPrincipal PrincipalDetails principal) {
         memberService.modifyPhone(phoneUpdateRequest, principal);
         return ResponseEntity.ok()
-                .body(new SuccessResponse());
+                .body(null);
     }
 
     @PatchMapping("/name")
-    public ResponseEntity<SuccessResponse> modifyName(@Valid @RequestBody NameUpdateRequest nameUpdateRequest,
+    public ResponseEntity<?> modifyName(@Valid @RequestBody NameUpdateRequest nameUpdateRequest,
                                                       @AuthenticationPrincipal PrincipalDetails principal) {
         memberService.modifyName(nameUpdateRequest, principal);
         return ResponseEntity.ok()
-                .body(new SuccessResponse());
+                .body(null);
     }
 
 }
