@@ -15,21 +15,30 @@ public class GlobalExpectedHandler {
     public ResponseEntity<ErrorResponse> handleUnExpectedException(final RuntimeException e) {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()));
+                .body(ErrorResponse.builder()
+                        .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                        .message(e.getMessage())
+                        .build());
     }
 
     @ExceptionHandler(ExpectedException.class)
     public ResponseEntity<ErrorResponse> handleExpectedException(final ExpectedException e) {
         return ResponseEntity
                 .status(e.getStatus())
-                .body(new ErrorResponse(e.getStatus(), e.getMessage()));
+                .body(ErrorResponse.builder()
+                        .status(e.getStatus())
+                        .message(e.getMessage())
+                        .build());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleExpectedException(final MethodArgumentNotValidException e) {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
+                .body(ErrorResponse.builder()
+                        .status(HttpStatus.BAD_REQUEST.value())
+                        .message(e.getMessage())
+                        .build());
     }
 
 }

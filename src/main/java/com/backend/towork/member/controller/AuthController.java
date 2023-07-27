@@ -1,11 +1,14 @@
 package com.backend.towork.member.controller;
 
+import com.backend.towork.global.domain.dto.response.ErrorResponse;
 import com.backend.towork.member.domain.dto.request.LoginRequest;
 import com.backend.towork.member.domain.dto.request.MemberRequest;
 import com.backend.towork.member.domain.dto.request.ReissueRequest;
 import com.backend.towork.member.domain.dto.response.TokenResponse;
 import com.backend.towork.member.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,8 +31,8 @@ public class AuthController {
             summary = "회원가입",
             description = "주어진 멤버 정보를 DB에 저장합니다.",
             responses = {
-                    @ApiResponse(responseCode = "201", description = "성공적으로 멤버 정보가 저장됨."),
-                    @ApiResponse(responseCode = "400", description = "주어진 정보가 올바르지 않음.")
+                    @ApiResponse(responseCode = "201", description = "성공적으로 멤버 정보가 저장됨.", content = @Content(schema = @Schema(implementation = MemberRequest.class))),
+                    @ApiResponse(responseCode = "400", description = "주어진 정보가 올바르지 않음.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             },
             security = {}
     )
@@ -46,8 +49,8 @@ public class AuthController {
             summary = "로그인",
             description = "email과 password를 이용하여 로그인합니다.",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "로그인 성공."),
-                    @ApiResponse(responseCode = "400", description = "주어진 정보가 올바르지 않음.")
+                    @ApiResponse(responseCode = "200", description = "로그인 성공.", content = @Content(schema = @Schema(implementation = LoginRequest.class))),
+                    @ApiResponse(responseCode = "400", description = "주어진 정보가 올바르지 않음.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             },
             security = {}
     )
@@ -63,9 +66,9 @@ public class AuthController {
             summary = "토큰 재발급",
             description = "refreshToken을 이용하여 accessToken과 refreshToken을 재발급합니다.",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "재발급 성공."),
-                    @ApiResponse(responseCode = "400", description = "주어진 정보가 올바르지 않음."),
-                    @ApiResponse(responseCode = "401", description = "주어진 토큰이 만료됬거나 문제가 있음.")
+                    @ApiResponse(responseCode = "200", description = "재발급 성공.", content = @Content(schema = @Schema(implementation = ReissueRequest.class))),
+                    @ApiResponse(responseCode = "400", description = "주어진 정보가 올바르지 않음.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = "401", description = "만료된 토큰이거나 잘못된 토큰임.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             },
             security = {}
     )
