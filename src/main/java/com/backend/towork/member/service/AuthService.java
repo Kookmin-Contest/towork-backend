@@ -7,11 +7,11 @@ import com.backend.towork.jwt.utils.JwtTokenKeys;
 import com.backend.towork.jwt.utils.JwtTokenProvider;
 import com.backend.towork.member.domain.dto.request.LoginRequest;
 import com.backend.towork.member.domain.dto.request.MemberRequest;
+import com.backend.towork.member.domain.dto.request.ReissueRequest;
 import com.backend.towork.member.domain.dto.response.TokenResponse;
 import com.backend.towork.member.domain.entity.Member;
 import com.backend.towork.member.domain.entity.Role;
 import com.backend.towork.member.repository.MemberRepository;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -76,8 +76,8 @@ public class AuthService {
         return TokenResponse.builder().accessToken(accessToken).refreshToken(refreshToken).build();
     }
 
-    public TokenResponse reissue(HttpServletRequest request) {
-        String refreshToken = jwtTokenProvider.resolveToken(request);
+    public TokenResponse reissue(ReissueRequest reissueRequest) {
+        String refreshToken = reissueRequest.getRefreshToken();
 
         jwtTokenProvider.validateToken(refreshToken, JwtTokenKeys.REFRESH_SECRET_KEY);
 

@@ -3,6 +3,7 @@ package com.backend.towork.global.config;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -17,12 +18,12 @@ public class SwaggerConfig {
     }
 
     private Components components() {
-        return new Components();
-//                .addSecuritySchemes("auth", new SecurityScheme()
-//                        .name("auth")
-//                        .type(SecurityScheme.Type.HTTP)
-//                        .scheme("bearer")
-//                        .bearerFormat("JWT"));
+        return new Components()
+                .addSecuritySchemes("auth", new SecurityScheme()
+                        .name("auth")
+                        .type(SecurityScheme.Type.HTTP)
+                        .scheme("bearer")
+                        .bearerFormat("JWT"));
     }
 
     private Info info() {
