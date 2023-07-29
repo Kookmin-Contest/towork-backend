@@ -9,16 +9,15 @@ import com.backend.towork.member.domain.Role;
 import com.backend.towork.member.dto.RegisterDto;
 import com.backend.towork.member.dto.RegisterResponseDto;
 import com.backend.towork.member.dto.TokenResponseDto;
-import com.backend.towork.member.principal.PrincipalDetails;
 import com.backend.towork.member.repository.MemberRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,8 +68,8 @@ public class AuthService {
         Member member = memberRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException(""));
 
-        String accessToken = jwtTokenProvider.generateToken(new PrincipalDetails(member));
-        String refreshToken = jwtTokenProvider.generateRefreshToken(new PrincipalDetails(member));
+        String accessToken = jwtTokenProvider.generateToken(member);
+        String refreshToken = jwtTokenProvider.generateRefreshToken(member);
         saveRefreshToken(username, refreshToken);
 
         return TokenResponseDto.builder()
@@ -95,8 +94,8 @@ public class AuthService {
         Member member = memberRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException(""));
 
-        String reissuedAccessToken = jwtTokenProvider.generateToken(new PrincipalDetails(member));
-        String reissuedRefreshToken = jwtTokenProvider.generateRefreshToken(new PrincipalDetails(member));
+        String reissuedAccessToken = jwtTokenProvider.generateToken(member);
+        String reissuedRefreshToken = jwtTokenProvider.generateRefreshToken(member);
         saveRefreshToken(username, reissuedRefreshToken);
 
         return TokenResponseDto.builder()
@@ -104,4 +103,6 @@ public class AuthService {
                 .refreshToken(reissuedRefreshToken)
                 .build();
     }
+
+
 }
