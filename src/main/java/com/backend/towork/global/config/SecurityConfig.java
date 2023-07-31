@@ -29,8 +29,19 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .headers(header -> header.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/oauth2/**").permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
+                        .requestMatchers(
+                                // API docs 관련
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+
+                                // 인증 관련
+                                "/auth/**",
+                                "/oauth2/**
+                        ).permitAll()
+                        .requestMatchers(
+                                // h2 database console
+                                new AntPathRequestMatcher("/h2-console/**")
+                        ).permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -41,4 +52,5 @@ public class SecurityConfig {
     public PasswordEncoder getPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 }

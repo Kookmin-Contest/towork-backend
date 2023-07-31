@@ -1,21 +1,20 @@
 package com.backend.towork.member.controller;
 
-import com.backend.towork.member.dto.LoginDto;
-import com.backend.towork.member.dto.RegisterDto;
-import com.backend.towork.member.dto.RegisterResponseDto;
-import com.backend.towork.member.dto.TokenResponseDto;
+import com.backend.towork.global.domain.dto.response.ErrorResponse;
+import com.backend.towork.member.domain.dto.request.LoginRequest;
+import com.backend.towork.member.domain.dto.request.MemberRequest;
+import com.backend.towork.member.domain.dto.request.ReissueRequest;
+import com.backend.towork.member.domain.dto.response.TokenResponse;
 import com.backend.towork.member.service.AuthService;
-import com.backend.towork.oauth.service.SocialLoginService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
-import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -27,31 +26,58 @@ import java.io.IOException;
 public class AuthController {
 
     private final AuthService authService;
-    private final SocialLoginService socialLoginService;
 
-    @PostMapping("/register")
-    public ResponseEntity<RegisterResponseDto> register(@RequestBody @Valid RegisterDto registerDto, BindingResult result) {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(null);
-        }
-        RegisterResponseDto responseDto = authService.register(registerDto);
-        return ResponseEntity.ok().body(responseDto);
+    @PostMapping(path = "/signup")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(
+            summary = "회원가입",
+            description = "주어진 멤버 정보를 DB에 저장합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "성공적으로 멤버 정보가 저장됨.", content = @Content(schema = @Schema(implementation = MemberRequest.class))),
+                    @ApiResponse(responseCode = "400", description = "주어진 정보가 올바르지 않음.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            },
+            security = {}
+    )
+    public ResponseEntity<?> signUp(@RequestBody @Valid final MemberRequest memberRequest) {
+        authService.signUp(memberRequest);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(null);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<TokenResponseDto> login(@RequestBody @Valid LoginDto loginDto, BindingResult result) {
-        if (result.hasErrors()) {
-            return ResponseEntity.badRequest().body(null);
-        }
-
-        TokenResponseDto responseDto = authService.login(loginDto.username(), loginDto.password());
-        return ResponseEntity.ok().body(responseDto);
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(
+            summary = "로그인",
+            description = "email과 password를 이용하여 로그인합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "로그인 성공.", content = @Content(schema = @Schema(implementation = LoginRequest.class))),
+                    @ApiResponse(responseCode = "400", description = "주어진 정보가 올바르지 않음.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            },
+            security = {}
+    )
+    public ResponseEntity<TokenResponse> login(@RequestBody @Valid LoginRequest loginRequest) {
+        TokenResponse tokenResponse = authService.login(loginRequest);
+        return ResponseEntity.ok()
+                .body(tokenResponse);
     }
 
     @PostMapping("/reissue")
-    public ResponseEntity<TokenResponseDto> reissue(HttpServletRequest request) throws Exception {
-        TokenResponseDto responseDto = authService.reissue(request);
-        return ResponseEntity.ok().body(responseDto);
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(
+            summary = "토큰 재발급",
+            description = "refreshToken을 이용하여 accessToken과 refreshToken을 재발급합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "재발급 성공.", content = @Content(schema = @Schema(implementation = ReissueRequest.class))),
+                    @ApiResponse(responseCode = "400", description = "주어진 정보가 올바르지 않음.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = "401", description = "만료된 토큰이거나 잘못된 토큰임.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            },
+            security = {}
+    )
+    public ResponseEntity<TokenResponse> reissue(@RequestBody @Valid ReissueRequest reissueRequest) {
+        TokenResponse tokenResponse = authService.reissue(reissueRequest);
+        return ResponseEntity.ok()
+                .body(tokenResponse);
     }
 
 

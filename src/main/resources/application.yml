@@ -34,3 +34,12 @@ logging:
 jwt:
   accessKey: 905bb9e2d658a6d3f1ee9331006a62730b1e1a394d077e2441a480f9385f2aa3bc9e86af832b933408d8a83d2526a208246ed681cd31729d853f4d384e6cf9ab
   refreshKey: 105bb9e2d658a6d3f1ee9331006a62730b1e1a394d077e2441a480f9385f2aa3bc9e86af832b933408d8a83d2526a208246ed681cd31729d853f4d384e6cf9ab
+
+springdoc:
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+  swagger-ui:
+    path: /
+    disable-swagger-default-url: true
+    display-request-duration: true
+    operations-sorter: alpha
