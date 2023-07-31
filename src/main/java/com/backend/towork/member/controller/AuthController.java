@@ -5,13 +5,20 @@ import com.backend.towork.member.dto.RegisterDto;
 import com.backend.towork.member.dto.RegisterResponseDto;
 import com.backend.towork.member.dto.TokenResponseDto;
 import com.backend.towork.member.service.AuthService;
+import com.backend.towork.oauth.service.SocialLoginService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @Slf4j
 @RestController
@@ -20,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final SocialLoginService socialLoginService;
 
     @PostMapping("/register")
     public ResponseEntity<RegisterResponseDto> register(@RequestBody @Valid RegisterDto registerDto, BindingResult result) {
@@ -45,6 +53,9 @@ public class AuthController {
         TokenResponseDto responseDto = authService.reissue(request);
         return ResponseEntity.ok().body(responseDto);
     }
+
+
+
 
     // TODO: Implement Logout
 }
