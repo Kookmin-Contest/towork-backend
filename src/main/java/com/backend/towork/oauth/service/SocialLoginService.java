@@ -93,6 +93,7 @@ public class SocialLoginService {
         if (member == null) {
             member = Member.builder()
                     .email(email)
+                    .name(userInfo.getName())
                     .password(UUID.randomUUID().toString())
                     .role(Role.USER)
                     .build();
