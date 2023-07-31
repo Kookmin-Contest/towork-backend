@@ -35,7 +35,8 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
 
                                 // 인증 관련
-                                "/auth/**"
+                                "/auth/**",
+                                "/oauth2/**
                         ).permitAll()
                         .requestMatchers(
                                 // h2 database console
