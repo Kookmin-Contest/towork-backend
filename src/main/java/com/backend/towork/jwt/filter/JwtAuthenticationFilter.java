@@ -31,7 +31,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String requestUri = request.getRequestURI();
-        log.info("filter is running ... " + requestUri);
+//        log.info("filter is running ... " + requestUri);
         if (requestUri.startsWith(EXCLUDE_URI)) {
             filterChain.doFilter(request, response);
             return;

@@ -53,6 +53,7 @@ public class AuthService {
                 .email(memberRequestDto.getEmail())
                 .password(encodedPassword)
                 .name(memberRequestDto.getName())
+                .authProvider("TO-WORK")
                 .birthDate(LocalDate.parse(memberRequestDto.getBirthDate(), DateTimeFormatter.ISO_DATE))
                 .phoneNumber(memberRequestDto.getPhoneNumber())
                 .role(Role.USER)
