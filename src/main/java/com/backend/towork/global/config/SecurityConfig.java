@@ -36,7 +36,7 @@ public class SecurityConfig {
 
                                 // 인증 관련
                                 "/auth/**",
-                                "/oauth2/**
+                                "/oauth2/**"
                         ).permitAll()
                         .requestMatchers(
                                 // h2 database console

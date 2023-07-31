@@ -5,17 +5,16 @@ import com.backend.towork.jwt.domain.RefreshToken;
 import com.backend.towork.jwt.repository.RefreshTokenRepository;
 import com.backend.towork.jwt.utils.JwtTokenKeys;
 import com.backend.towork.jwt.utils.JwtTokenProvider;
-import com.backend.towork.member.domain.dto.request.LoginRequest;
-import com.backend.towork.member.domain.dto.request.MemberRequest;
-import com.backend.towork.member.domain.dto.request.ReissueRequest;
-import com.backend.towork.member.domain.dto.response.TokenResponse;
+import com.backend.towork.member.domain.dto.request.LoginRequestDto;
+import com.backend.towork.member.domain.dto.request.MemberRequestDto;
+import com.backend.towork.member.domain.dto.request.ReissueRequestDto;
+import com.backend.towork.member.domain.dto.response.TokenResponseDto;
 import com.backend.towork.member.domain.entity.Member;
 import com.backend.towork.member.domain.entity.Role;
 import com.backend.towork.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,30 +42,30 @@ public class AuthService {
     }
 
     @Transactional
-    public void signUp(final MemberRequest memberRequest) {
-        if (emailExists(memberRequest.getEmail())) {
+    public void signUp(final MemberRequestDto memberRequestDto) {
+        if (emailExists(memberRequestDto.getEmail())) {
             throw new ExpectedException(400, "이미 존재하는 이메일입니다.");
         }
 
-        String encodedPassword = passwordEncoder.encode(memberRequest.getPassword());
+        String encodedPassword = passwordEncoder.encode(memberRequestDto.getPassword());
 
         Member member = Member.builder()
-                .email(memberRequest.getEmail())
+                .email(memberRequestDto.getEmail())
                 .password(encodedPassword)
-                .name(memberRequest.getName())
-                .birthDate(LocalDate.parse(memberRequest.getBirthDate(), DateTimeFormatter.ISO_DATE))
-                .phoneNumber(memberRequest.getPhoneNumber())
+                .name(memberRequestDto.getName())
+                .birthDate(LocalDate.parse(memberRequestDto.getBirthDate(), DateTimeFormatter.ISO_DATE))
+                .phoneNumber(memberRequestDto.getPhoneNumber())
                 .role(Role.USER)
                 .build();
         memberRepository.save(member);
     }
 
-    public TokenResponse login(LoginRequest loginRequest) {
-        String email = loginRequest.getEmail();
+    public TokenResponseDto login(LoginRequestDto loginRequestDto) {
+        String email = loginRequestDto.getEmail();
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new ExpectedException(401, "잘못된 아이디 또는 패스워드 입니다."));
 
-        if (!passwordEncoder.matches(loginRequest.getPassword(), member.getPassword())) {
+        if (!passwordEncoder.matches(loginRequestDto.getPassword(), member.getPassword())) {
             throw new ExpectedException(401, "잘못된 아이디 또는 패스워드 입니다.");
         }
 
@@ -74,11 +73,11 @@ public class AuthService {
         String refreshToken = jwtTokenProvider.generateRefreshToken(member);
         saveRefreshToken(email, refreshToken);
 
-        return TokenResponse.builder().accessToken(accessToken).refreshToken(refreshToken).build();
+        return TokenResponseDto.builder().accessToken(accessToken).refreshToken(refreshToken).build();
     }
 
-    public TokenResponse reissue(ReissueRequest reissueRequest) {
-        String refreshToken = reissueRequest.getRefreshToken();
+    public TokenResponseDto reissue(ReissueRequestDto reissueRequestDto) {
+        String refreshToken = reissueRequestDto.getRefreshToken();
 
         jwtTokenProvider.validateToken(refreshToken, JwtTokenKeys.REFRESH_SECRET_KEY);
 
@@ -97,7 +96,7 @@ public class AuthService {
         String reissuedRefreshToken = jwtTokenProvider.generateRefreshToken(member);
         saveRefreshToken(email, reissuedRefreshToken);
 
-        return TokenResponse.builder().accessToken(reissuedAccessToken).refreshToken(reissuedRefreshToken).build();
+        return TokenResponseDto.builder().accessToken(reissuedAccessToken).refreshToken(reissuedRefreshToken).build();
     }
 
 

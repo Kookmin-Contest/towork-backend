@@ -6,11 +6,12 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 
 @Getter
-public class PhoneUpdateRequest {
+public class NameUpdateRequestDto {
 
+    @Schema(example = "홍길동")
     @NotBlank
-    @Schema(example = "010-1234-5678")
-    @Pattern(regexp = "^01([0|1|6|7|8|9])-([0-9]{3,4})-([0-9]{4})$")
-    private String phoneNumber;
+    @Pattern(regexp = "^[a-zA-Z가-힣]{2,10}$")
+    private String name;
+
 
 }

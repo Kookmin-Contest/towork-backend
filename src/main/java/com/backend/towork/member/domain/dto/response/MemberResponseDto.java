@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class MemberResponse {
+public class MemberResponseDto {
 
     @Schema(example = "1")
     private Long memberId;

@@ -1,4 +1,4 @@
-package com.backend.towork.member.dto;
+package com.backend.towork.member.domain.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;

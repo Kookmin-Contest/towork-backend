@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 
 @Getter
-public class MemberRequest {
+public class MemberRequestDto {
 
     @Schema(example = "example@gmail.com")
     @Email

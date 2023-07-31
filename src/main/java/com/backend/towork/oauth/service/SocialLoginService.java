@@ -3,10 +3,10 @@ package com.backend.towork.oauth.service;
 import com.backend.towork.jwt.domain.RefreshToken;
 import com.backend.towork.jwt.repository.RefreshTokenRepository;
 import com.backend.towork.jwt.utils.JwtTokenProvider;
-import com.backend.towork.member.domain.Member;
-import com.backend.towork.member.domain.Role;
-import com.backend.towork.member.dto.OauthTokenResponseDto;
-import com.backend.towork.member.dto.TokenResponseDto;
+import com.backend.towork.member.domain.dto.response.OauthTokenResponseDto;
+import com.backend.towork.member.domain.dto.response.TokenResponseDto;
+import com.backend.towork.member.domain.entity.Member;
+import com.backend.towork.member.domain.entity.Role;
 import com.backend.towork.member.repository.MemberRepository;
 import com.backend.towork.oauth.provider.OauthProvider;
 import com.backend.towork.oauth.setup.InMemoryProviderRepository;
@@ -20,13 +20,14 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Collections;
+import java.util.Map;
+import java.util.UUID;
 
 
 @Slf4j
@@ -88,10 +89,10 @@ public class SocialLoginService {
 
         // 신규 회원이면 디비에 저장
         String email = userInfo.getEmail();
-        Member member = memberRepository.findByUsername(email).orElse(null);
+        Member member = memberRepository.findByEmail(email).orElse(null);
         if (member == null) {
             member = Member.builder()
-                    .username(email)
+                    .email(email)
                     .password(UUID.randomUUID().toString())
                     .role(Role.USER)
                     .build();

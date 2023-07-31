@@ -1,12 +1,11 @@
 package com.backend.towork.oauth.controller;
 
-import com.backend.towork.member.dto.TokenResponseDto;
+import com.backend.towork.member.domain.dto.response.TokenResponseDto;
 import com.backend.towork.oauth.service.SocialLoginService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.antlr.v4.runtime.Token;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

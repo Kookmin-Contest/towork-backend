@@ -1,8 +1,8 @@
 package com.backend.towork.member.service;
 
-import com.backend.towork.member.domain.dto.request.NameUpdateRequest;
-import com.backend.towork.member.domain.dto.request.PhoneUpdateRequest;
-import com.backend.towork.member.domain.dto.response.MemberResponse;
+import com.backend.towork.member.domain.dto.request.NameUpdateRequestDto;
+import com.backend.towork.member.domain.dto.request.PhoneUpdateRequestDto;
+import com.backend.towork.member.domain.dto.response.MemberResponseDto;
 import com.backend.towork.member.domain.entity.Member;
 import com.backend.towork.member.domain.entity.PrincipalDetails;
 import com.backend.towork.member.repository.MemberRepository;
@@ -15,8 +15,8 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
 
-    public MemberResponse getMemberInfo(Member member) {
-        return MemberResponse.builder()
+    public MemberResponseDto getMemberInfo(Member member) {
+        return MemberResponseDto.builder()
                 .memberId(member.getId())
                 .email(member.getEmail())
                 .name(member.getName())
@@ -26,15 +26,15 @@ public class MemberService {
                 .build();
     }
 
-    public void modifyName(NameUpdateRequest nameUpdateRequest, PrincipalDetails principal) {
+    public void modifyName(NameUpdateRequestDto nameUpdateRequestDto, PrincipalDetails principal) {
         Member member = principal.getMember();
-        member.changeName(nameUpdateRequest.getName());
+        member.changeName(nameUpdateRequestDto.getName());
         memberRepository.save(member);
     }
 
-    public void modifyPhone(PhoneUpdateRequest phoneUpdateRequest, PrincipalDetails principal) {
+    public void modifyPhone(PhoneUpdateRequestDto phoneUpdateRequestDto, PrincipalDetails principal) {
         Member member = principal.getMember();
-        member.changePhoneNumber(phoneUpdateRequest.getPhoneNumber());
+        member.changePhoneNumber(phoneUpdateRequestDto.getPhoneNumber());
         memberRepository.save(member);
     }
 
