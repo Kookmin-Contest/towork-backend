@@ -21,6 +21,7 @@ public class Participant {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workspace_id", nullable = false)
+    @Setter
     private Workspace workspace;
 
     @Enumerated(EnumType.STRING)

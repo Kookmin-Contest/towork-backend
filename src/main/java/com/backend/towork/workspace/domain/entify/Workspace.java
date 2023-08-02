@@ -26,7 +26,7 @@ public class Workspace {
     @JoinColumn(name = "owner_id", nullable = false)
     private Member owner;
 
-    @OneToMany(mappedBy = "workspace")
-    private List<Participant> participant;
+    @OneToMany(mappedBy = "workspace", cascade = CascadeType.ALL)
+    private List<Participant> participants;
 
 }
