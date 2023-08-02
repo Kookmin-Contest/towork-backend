@@ -1,16 +1,23 @@
 package com.backend.towork.member.service;
 
+import com.backend.towork.global.handler.exception.ExpectedException;
 import com.backend.towork.member.domain.dto.request.NameUpdateRequestDto;
 import com.backend.towork.member.domain.dto.request.PhoneUpdateRequestDto;
 import com.backend.towork.member.domain.dto.response.MemberResponseDto;
 import com.backend.towork.member.domain.entity.Member;
 import com.backend.towork.member.domain.entity.PrincipalDetails;
 import com.backend.towork.member.repository.MemberRepository;
+import com.backend.towork.workspace.domain.dto.response.WorkspaceResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MemberService {
 
     private final MemberRepository memberRepository;
@@ -38,4 +45,19 @@ public class MemberService {
         memberRepository.save(member);
     }
 
+    @Transactional
+    public List<WorkspaceResponseDto> getWorkspacesOfMember(PrincipalDetails principal) {
+        Member member = memberRepository.findById(principal.getMember().getId())
+                .orElseThrow(() -> new ExpectedException(400, "test"));
+
+        List<WorkspaceResponseDto> workspaceResponseDtos =
+                new ArrayList<>();
+        member.getWorkspaces().forEach(workspaceEntity -> {
+            workspaceResponseDtos.add(WorkspaceResponseDto.builder()
+                    .id(workspaceEntity.getId())
+                    .workspaceName(workspaceEntity.getName())
+                    .build());
+        });
+        return workspaceResponseDtos;
+    }
 }

@@ -6,6 +6,7 @@ import com.backend.towork.member.domain.dto.request.PhoneUpdateRequestDto;
 import com.backend.towork.member.domain.dto.response.MemberResponseDto;
 import com.backend.towork.member.domain.entity.PrincipalDetails;
 import com.backend.towork.member.service.MemberService;
+import com.backend.towork.workspace.domain.dto.response.WorkspaceResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,6 +18,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -77,6 +80,14 @@ public class MemberController {
         memberService.modifyName(nameUpdateRequestDto, principal);
         return ResponseEntity.ok()
                 .body(null);
+    }
+
+    @GetMapping("/workspaces")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<WorkspaceResponseDto>> getWorkspacesOfMember(@AuthenticationPrincipal PrincipalDetails principal) {
+        List<WorkspaceResponseDto> workspaceResponseDtos = memberService.getWorkspacesOfMember(principal);
+        return ResponseEntity.ok()
+                .body(workspaceResponseDtos);
     }
 
 }
