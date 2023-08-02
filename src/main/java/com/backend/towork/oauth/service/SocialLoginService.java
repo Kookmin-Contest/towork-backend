@@ -1,5 +1,6 @@
 package com.backend.towork.oauth.service;
 
+import com.backend.towork.global.handler.exception.ExpectedException;
 import com.backend.towork.jwt.domain.RefreshToken;
 import com.backend.towork.jwt.repository.RefreshTokenRepository;
 import com.backend.towork.jwt.utils.JwtTokenProvider;
@@ -47,7 +48,7 @@ public class SocialLoginService {
     public String getAuthorizationUriRequest(String registrationId) {
         OauthProviderRegistration oAuthProviderRegistration = inMemoryProviderRepository.findByProviderName(registrationId);
         if (oAuthProviderRegistration == null) {
-            throw new IllegalArgumentException("Invalid Provider with Id: " + registrationId);
+            throw new ExpectedException(400, "존재하지 않는 Provider ID 입니다.");
         }
         if (registrationId.equals("google")) {
             return UriComponentsBuilder.fromUriString(oAuthProviderRegistration.getAuthorizationUri())
@@ -65,11 +66,11 @@ public class SocialLoginService {
                     .build().toUriString();
         }
         else {
-            throw new IllegalArgumentException("Invalid Provider with Id:" + registrationId);
+            throw new ExpectedException(400, "유효하지 않는 Provider ID 입니다.");
         }
     }
 
-    public TokenResponseDto login(String registrationId, String code) {
+    public TokenResponseDto socialLogin(String registrationId, String code) {
         OauthProviderRegistration provider = inMemoryProviderRepository.findByProviderName(registrationId);
 
         // 코드로 토큰 가져오기
@@ -87,19 +88,29 @@ public class SocialLoginService {
 
         log.info(userInfo.getProvider() + ": " + userInfo.getAttributes() + " ...  user info");
 
-        // 신규 회원이면 디비에 저장
         String email = userInfo.getEmail();
         Member member = memberRepository.findByEmail(email).orElse(null);
+
+        // 가입되지 않은 경우
         if (member == null) {
             member = Member.builder()
                     .email(email)
+                    .name(userInfo.getName())
+                    .authProvider(userInfo.getProvider().name())
                     .password(UUID.randomUUID().toString())
                     .role(Role.USER)
                     .build();
             memberRepository.save(member);
         }
+        // 1. 신규회원인데 이미 등록한 이메일이 DB에 존재하는 경우
+        // -> ex) 자체 회원가입(AuthController)을 example@gmail.com으로 했고, 소셜로그인도 example@gmail.com으로 시도 하는 경우
+        // -> (authProvider)가 각각 TO-WORK(자체), GOOGLE(userInfo)로 다르다.
+        // 2. 구회원인데 그냥 로그인 하는 경우
+        // -> 코드 진행
         else {
-            throw new IllegalStateException("동일한 이메일을 가진 아이디가 있습니다.");
+            if (!member.getAuthProvider().equals(userInfo.getProvider().name())) {
+                throw new ExpectedException(400, "동일한 이메일이 존재합니다.");
+            }
         }
 
         String accessToken = jwtTokenProvider.generateToken(member);
@@ -110,6 +121,9 @@ public class SocialLoginService {
                         .refreshToken(refreshToken)
                         .build()
         );
+
+        log.info("AT: " + accessToken);
+        log.info("RT: " + refreshToken);
 
         return TokenResponseDto.builder()
                 .accessToken(accessToken)
@@ -150,30 +164,4 @@ public class SocialLoginService {
         formData.add("client_id", oAuthProviderRegistration.getClientId());
         return formData;
     }
-
-//    @SuppressWarnings({"unchecked"})
-//    private OauthUserInfo getGoogleUserInfo(String authToken) {
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
-//        headers.add("Authorization", "Bearer" + authToken);
-//        Map<String, Object> attributes = restTemplate.postForObject(
-//                "https://www.googleapis.com/oauth2/v3/userinfo",
-//                new HttpEntity<>(headers),
-//                Map.class
-//        );
-//        return OauthUserInfoFactory.getOauthUserInfo(OauthProvider.GOOGLE, attributes);
-//    }
-
-//    @SuppressWarnings({"unchecked"})
-//    private OauthUserInfo getKakaoUserInfo(String authToken) {
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.add("Authorization", "Bearer " + authToken);
-//        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
-//        Map<String, Object> attributes = restTemplate.postForObject(
-//                "https://kapi.kakao.com/v2/user/me",
-//                new HttpEntity<>(headers),
-//                Map.class
-//        );
-//        return OauthUserInfoFactory.getOauthUserInfo(OauthProvider.KAKAO, attributes);
-//    }
 }
