@@ -1,6 +1,8 @@
 package com.backend.towork.member.domain.entity;
 
-import com.backend.towork.oauth.provider.OauthProvider;
+import com.backend.towork.workspace.domain.entify.Participant;
+import com.backend.towork.workspace.domain.entify.Workspace;
+import com.backend.towork.oauth.provider.OauthProvider
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
@@ -11,6 +13,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Entity
@@ -47,6 +51,12 @@ public class Member {
     @NotNull
     @CreatedDate
     private LocalDateTime createDateTime;
+
+    @OneToMany(mappedBy = "owner")
+    List<Workspace> workspaces = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member")
+    List<Participant> participants = new ArrayList<>();
 
     @NotNull
     @Enumerated(EnumType.STRING)
