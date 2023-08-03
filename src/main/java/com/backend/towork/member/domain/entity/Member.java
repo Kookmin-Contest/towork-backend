@@ -2,9 +2,7 @@ package com.backend.towork.member.domain.entity;
 
 import com.backend.towork.workspace.domain.entify.Participant;
 import com.backend.towork.workspace.domain.entify.Workspace;
-import com.backend.towork.oauth.provider.OauthProvider
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
