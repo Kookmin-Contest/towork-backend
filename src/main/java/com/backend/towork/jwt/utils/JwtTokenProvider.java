@@ -1,8 +1,10 @@
 package com.backend.towork.jwt.utils;
 
+import com.backend.towork.jwt.error.TokenNotValidateException;
 import com.backend.towork.member.domain.entity.Member;
 import com.backend.towork.member.service.PrincipalDetailService;
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,29 +56,21 @@ public class JwtTokenProvider {
         return null;
     }
 
-    /**
-     * TODO: throw error and handle it
-     * 해당 error를 handling하기 위해선 AuthenticationEntryPoint라는 것을 사용해서
-     * Filter 단에서 에러를 처리해야 합니다!!
-     */
-    public boolean validateToken(String token, Key secretKey) {
+    public void validateToken(String token, Key secretKey) {
         try {
             Jwts.parserBuilder()
                     .setSigningKey(secretKey)
                     .build()
                     .parseClaimsJws(token);
-
-            return true;
-        } catch (SecurityException | MalformedJwtException e) {
-            log.info("잘못된 JWT 서명입니다.");
+        } catch (SignatureException e) {
+            throw new TokenNotValidateException("토큰의 서명이 올바르지 않습니다.");
+        } catch (MalformedJwtException e) {
+            throw new TokenNotValidateException("토큰이 올바르지 않습니다.");
         } catch (ExpiredJwtException e) {
-            log.info("만료된 JWT 토큰입니다.");
-        } catch (UnsupportedJwtException e) {
-            log.info("지원되지 않는 JWT 토큰입니다.");
+            throw new TokenNotValidateException("토큰이 만료되었습니다.");
         } catch (IllegalArgumentException e) {
-            log.info("JWT 토큰이 잘못되었습니다.");
+            throw new TokenNotValidateException("토큰이 주어지지 않았습니다.");
         }
-        return false;
     }
 
     public Authentication getAuthentication(String token, Key secretKey) {

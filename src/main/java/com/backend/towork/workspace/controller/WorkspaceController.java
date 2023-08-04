@@ -1,6 +1,6 @@
 package com.backend.towork.workspace.controller;
 
-import com.backend.towork.global.domain.dto.response.ErrorResponse;
+import com.backend.towork.global.error.ErrorResponse;
 import com.backend.towork.member.domain.entity.Member;
 import com.backend.towork.member.domain.entity.PrincipalDetails;
 import com.backend.towork.workspace.domain.dto.request.WorkspaceRequestDto;
@@ -44,7 +44,7 @@ public class WorkspaceController {
                 .body(null);
     }
 
-    @GetMapping("/{workspaceId}/info")
+    @GetMapping("/{workspaceId}")
     @ResponseStatus(HttpStatus.OK)
     @Operation(
             summary = "워크스페이스 정보 가져오기",

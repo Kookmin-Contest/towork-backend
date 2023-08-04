@@ -1,4 +1,4 @@
-package com.backend.towork.global.handler;
+package com.backend.towork.global.error.handler;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

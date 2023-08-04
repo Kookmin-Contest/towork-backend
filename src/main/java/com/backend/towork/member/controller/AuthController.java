@@ -1,6 +1,6 @@
 package com.backend.towork.member.controller;
 
-import com.backend.towork.global.domain.dto.response.ErrorResponse;
+import com.backend.towork.global.error.ErrorResponse;
 import com.backend.towork.member.domain.dto.request.LoginRequestDto;
 import com.backend.towork.member.domain.dto.request.MemberRequestDto;
 import com.backend.towork.member.domain.dto.request.ReissueRequestDto;

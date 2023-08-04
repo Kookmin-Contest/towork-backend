@@ -1,4 +1,4 @@
-package com.backend.towork.global.domain.dto.response;
+package com.backend.towork.global.error;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;

@@ -37,6 +37,9 @@ public class Member {
     @NotNull
     private String name;
 
+    @NotNull
+    private String authProvider;
+
     @Setter
     private LocalDate birthDate;
 

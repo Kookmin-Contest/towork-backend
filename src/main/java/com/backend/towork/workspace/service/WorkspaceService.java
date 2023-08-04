@@ -1,14 +1,12 @@
 package com.backend.towork.workspace.service;
 
-import com.backend.towork.global.handler.exception.ExpectedException;
 import com.backend.towork.member.domain.entity.Member;
-import com.backend.towork.member.repository.MemberRepository;
 import com.backend.towork.workspace.domain.dto.request.WorkspaceRequestDto;
 import com.backend.towork.workspace.domain.dto.response.WorkspaceResponseDto;
 import com.backend.towork.workspace.domain.entity.Participant;
 import com.backend.towork.workspace.domain.entity.Scope;
 import com.backend.towork.workspace.domain.entity.Workspace;
-import com.backend.towork.workspace.repository.ParticipantRepository;
+import com.backend.towork.workspace.error.exception.WorkspaceNotFoundException;
 import com.backend.towork.workspace.repository.WorkspaceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,9 +23,8 @@ import java.util.List;
 public class WorkspaceService {
 
     private final WorkspaceRepository workspaceRepository;
-    private final ParticipantRepository participantRepository;
-    private final MemberRepository memberRepository;
 
+    // TODO: workspace name으로 제한걸기, 개수 제한하기
     @Transactional
     public void createWorkspace(WorkspaceRequestDto workspaceRequestDto, Member member) {
         Participant participant = Participant.builder()
@@ -43,10 +40,10 @@ public class WorkspaceService {
         workspaceRepository.save(workspace);
     }
 
-    @PreAuthorize("@auth.isParticipant(#workspaceId, #member)")
+    @PreAuthorize("@scopeService.hasUserScopeByWorkspaceId(#workspaceId, #member.id)")
     public WorkspaceResponseDto getWorkspaceInfoByWorkspaceId(Long workspaceId, Member member) {
         Workspace workspace = workspaceRepository.findById(workspaceId)
-                .orElseThrow(() -> new ExpectedException(400, "없는 워크스페이스 입니다."));
+                .orElseThrow(WorkspaceNotFoundException::new);
 
         return WorkspaceResponseDto.builder()
                 .id(workspace.getId())

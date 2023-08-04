@@ -31,7 +31,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String requestUri = request.getRequestURI();
-        log.info("filter is running ... " + requestUri);
         if (requestUri.startsWith(EXCLUDE_URI)) {
             filterChain.doFilter(request, response);
             return;
@@ -39,12 +38,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = jwtTokenProvider.resolveToken(request);
 
-        if (token != null && jwtTokenProvider.validateToken(token, JwtTokenKeys.ACCESS_SECRET_KEY)) {
+        try {
+            jwtTokenProvider.validateToken(token, JwtTokenKeys.ACCESS_SECRET_KEY);
             Authentication authentication = jwtTokenProvider.getAuthentication(token, JwtTokenKeys.ACCESS_SECRET_KEY);
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            log.debug("Security Context에 '{}' 인증 정보를 저장했습니다. uri: {}", authentication.getName(), requestUri);
-        } else {
-            log.debug("유효한 JWT 토큰이 없습니다. uri: {}", requestUri);
+            log.info("Security Context에 '{}' 인증 정보를 저장했습니다. uri: {}", authentication.getName(), requestUri);
+        } catch (Exception e) {
+            request.setAttribute("exception", e);
         }
 
         filterChain.doFilter(request, response);

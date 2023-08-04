@@ -1,6 +1,7 @@
 package com.backend.towork.global.config;
 
-import com.backend.towork.global.handler.DelegatingAccessDeniedHandler;
+import com.backend.towork.global.error.handler.DelegatingAccessDeniedHandler;
+import com.backend.towork.global.error.handler.DelegatingAuthenticationEntryPoint;
 import com.backend.towork.jwt.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +26,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final DelegatingAccessDeniedHandler delegatingAccessDeniedHandler;
+    private final DelegatingAuthenticationEntryPoint delegatingAuthenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -48,8 +50,9 @@ public class SecurityConfig {
                         ).permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(exception ->
-                        exception.accessDeniedHandler(delegatingAccessDeniedHandler))
+                .exceptionHandling(exception -> exception
+                        .accessDeniedHandler(delegatingAccessDeniedHandler)
+                        .authenticationEntryPoint(delegatingAuthenticationEntryPoint))
                 .build();
     }
 

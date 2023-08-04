@@ -17,7 +17,7 @@ public class ParticipantRepository {
     private final EntityManager em;
     private final JPAQueryFactory queryFactory;
     
-    public Optional<Scope> getRoleByWorkspaceIdAndMemberId(Long workspaceId, Long memberId) {
+    public Optional<Scope> getScopeByWorkspaceIdAndMemberId(Long workspaceId, Long memberId) {
         Scope scope = queryFactory.from(participant)
                 .select(participant.scope)
                 .where(participant.workspace.id.eq(workspaceId))
