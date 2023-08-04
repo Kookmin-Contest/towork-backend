@@ -24,7 +24,7 @@ public class WorkspaceController {
     public ResponseEntity<?> createWorkspace(@Valid @RequestBody WorkspaceRequestDto workspaceRequestDto,
                                              @AuthenticationPrincipal PrincipalDetails principal) {
         Member member = principal.getMember();
-        workspaceService.createWorkspace(member, workspaceRequestDto);
+        workspaceService.createWorkspace(workspaceRequestDto, member);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(null);
@@ -35,7 +35,7 @@ public class WorkspaceController {
     public ResponseEntity<WorkspaceResponseDto> getWorkspace(@PathVariable Long workspaceId,
                                                              @AuthenticationPrincipal PrincipalDetails principal) {
         Member member = principal.getMember();
-        WorkspaceResponseDto responseDto = workspaceService.getWorkspace(workspaceId, member);
+        WorkspaceResponseDto responseDto = workspaceService.getWorkspaceInfoByWorkspaceId(workspaceId, member);
         return ResponseEntity.ok()
                 .body(responseDto);
     }

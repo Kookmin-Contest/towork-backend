@@ -1,4 +1,4 @@
-package com.backend.towork.workspace.domain.entify;
+package com.backend.towork.workspace.domain.entity;
 
 import static com.querydsl.core.types.PathMetadataFactory.*;
 
@@ -16,7 +16,7 @@ import com.querydsl.core.types.dsl.PathInits;
 @Generated("com.querydsl.codegen.DefaultEntitySerializer")
 public class QWorkspace extends EntityPathBase<Workspace> {
 
-    private static final long serialVersionUID = 128882702L;
+    private static final long serialVersionUID = 1936040768L;
 
     private static final PathInits INITS = PathInits.DIRECT2;
 

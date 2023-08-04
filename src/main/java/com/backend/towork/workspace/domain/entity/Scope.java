@@ -1,4 +1,4 @@
-package com.backend.towork.workspace.domain.entify;
+package com.backend.towork.workspace.domain.entity;
 
 public enum Scope {
     OWNER,

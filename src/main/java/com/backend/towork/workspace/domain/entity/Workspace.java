@@ -1,4 +1,4 @@
-package com.backend.towork.workspace.domain.entify;
+package com.backend.towork.workspace.domain.entity;
 
 import com.backend.towork.member.domain.entity.Member;
 import jakarta.persistence.*;
@@ -13,7 +13,8 @@ import java.util.List;
 @AllArgsConstructor
 public class Workspace {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     @Column(name = "workspace_id")
     private Long id;
 

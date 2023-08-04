@@ -1,4 +1,4 @@
-package com.backend.towork.workspace.domain.entify;
+package com.backend.towork.workspace.domain.entity;
 
 import com.backend.towork.member.domain.entity.Member;
 import jakarta.persistence.*;
@@ -6,6 +6,7 @@ import lombok.*;
 
 @Entity
 @Builder
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class Participant {

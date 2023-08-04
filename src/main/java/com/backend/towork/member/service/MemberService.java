@@ -1,6 +1,5 @@
 package com.backend.towork.member.service;
 
-import com.backend.towork.global.handler.exception.ExpectedException;
 import com.backend.towork.member.domain.dto.request.NameUpdateRequestDto;
 import com.backend.towork.member.domain.dto.request.PhoneUpdateRequestDto;
 import com.backend.towork.member.domain.dto.response.MemberResponseDto;
@@ -33,24 +32,17 @@ public class MemberService {
     }
 
     @Transactional
-    public void modifyName(NameUpdateRequestDto nameUpdateRequestDto, Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                        .orElseThrow();
+    public void modifyName(NameUpdateRequestDto nameUpdateRequestDto, Member member) {
         member.changeName(nameUpdateRequestDto.getName());
     }
 
     @Transactional
-    public void modifyPhone(PhoneUpdateRequestDto phoneUpdateRequestDto, Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                        .orElseThrow();
+    public void modifyPhone(PhoneUpdateRequestDto phoneUpdateRequestDto, Member member) {
         member.changePhoneNumber(phoneUpdateRequestDto.getPhoneNumber());
     }
 
     @Transactional
-    public List<WorkspaceResponseDto> getWorkspacesOfMember(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new ExpectedException(400, "test"));
-
+    public List<WorkspaceResponseDto> getWorkspacesOfMember(Member member) {
         List<WorkspaceResponseDto> workspaceResponseDtos =
                 new ArrayList<>();
         member.getWorkspaces().forEach(workspaceEntity -> {

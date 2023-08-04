@@ -1,6 +1,6 @@
 package com.backend.towork.workspace.repository;
 
-import com.backend.towork.workspace.domain.entify.Workspace;
+import com.backend.towork.workspace.domain.entity.Workspace;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;

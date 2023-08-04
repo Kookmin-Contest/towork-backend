@@ -4,6 +4,7 @@ import com.backend.towork.global.domain.dto.response.ErrorResponse;
 import com.backend.towork.member.domain.dto.request.NameUpdateRequestDto;
 import com.backend.towork.member.domain.dto.request.PhoneUpdateRequestDto;
 import com.backend.towork.member.domain.dto.response.MemberResponseDto;
+import com.backend.towork.member.domain.entity.Member;
 import com.backend.towork.member.domain.entity.PrincipalDetails;
 import com.backend.towork.member.service.MemberService;
 import com.backend.towork.workspace.domain.dto.response.WorkspaceResponseDto;
@@ -40,8 +41,9 @@ public class MemberController {
                     @ApiResponse(responseCode = "401", description = "만료된 토큰이거나 잘못된 토큰임.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             }
     )
-    public ResponseEntity<MemberResponseDto> getMemberInfo(@AuthenticationPrincipal PrincipalDetails principal) {
-        MemberResponseDto memberResponseDto = memberService.getMemberInfo(principal.getMember());
+    public ResponseEntity<MemberResponseDto> getMemberInfo(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+        Member member = principalDetails.getMember();
+        MemberResponseDto memberResponseDto = memberService.getMemberInfo(member);
         return ResponseEntity.ok()
                 .body(memberResponseDto);
     }
@@ -58,8 +60,9 @@ public class MemberController {
             }
     )
     public ResponseEntity<?> modifyPhone(@Valid @RequestBody PhoneUpdateRequestDto phoneUpdateRequestDto,
-                                                       @AuthenticationPrincipal PrincipalDetails principal) {
-        memberService.modifyPhone(phoneUpdateRequestDto, principal.getMember().getId());
+                                                       @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        Member member = principalDetails.getMember();
+        memberService.modifyPhone(phoneUpdateRequestDto, member);
         return ResponseEntity.ok()
                 .body(null);
     }
@@ -77,15 +80,17 @@ public class MemberController {
     )
     public ResponseEntity<?> modifyName(@Valid @RequestBody NameUpdateRequestDto nameUpdateRequestDto,
                                                       @AuthenticationPrincipal PrincipalDetails principal) {
-        memberService.modifyName(nameUpdateRequestDto, principal.getMember().getId());
+        Member member = principal.getMember();
+        memberService.modifyName(nameUpdateRequestDto, member);
         return ResponseEntity.ok()
                 .body(null);
     }
 
     @GetMapping("/workspaces")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<List<WorkspaceResponseDto>> getWorkspacesOfMember(@AuthenticationPrincipal PrincipalDetails principal) {
-        List<WorkspaceResponseDto> workspaceResponseDtos = memberService.getWorkspacesOfMember(principal.getMember().getId());
+    public ResponseEntity<List<WorkspaceResponseDto>> getWorkspacesOfMember(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+        Member member = principalDetails.getMember();
+        List<WorkspaceResponseDto> workspaceResponseDtos = memberService.getWorkspacesOfMember(member);
         return ResponseEntity.ok()
                 .body(workspaceResponseDtos);
     }

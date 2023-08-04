@@ -1,6 +1,6 @@
 package com.backend.towork.workspace.repository;
 
-import com.backend.towork.workspace.domain.entify.Scope;
+import com.backend.towork.workspace.domain.entity.Scope;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-import static com.backend.towork.workspace.domain.entify.QParticipant.participant;
+import static com.backend.towork.workspace.domain.entity.QParticipant.participant;
 
 @Repository
 @RequiredArgsConstructor
