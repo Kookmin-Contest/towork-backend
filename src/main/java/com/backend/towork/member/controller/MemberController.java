@@ -88,6 +88,14 @@ public class MemberController {
 
     @GetMapping("/workspaces")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(
+            summary = "멤버 이름 업데이트",
+            description = "토큰에 명시된 멤버의 이름을 업데이트합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "성공적으로 본인의 워크스페이스의 정보를 가져옴."),
+                    @ApiResponse(responseCode = "401", description = "만료된 토큰이거나 잘못된 토큰임.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            }
+    )
     public ResponseEntity<List<WorkspaceResponseDto>> getWorkspacesOfMember(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         Member member = principalDetails.getMember();
         List<WorkspaceResponseDto> workspaceResponseDtos = memberService.getWorkspacesOfMember(member);
