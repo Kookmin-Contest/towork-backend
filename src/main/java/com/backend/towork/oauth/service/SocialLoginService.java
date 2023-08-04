@@ -1,6 +1,6 @@
 package com.backend.towork.oauth.service;
 
-import com.backend.towork.global.handler.exception.ExpectedException;
+import com.backend.towork.global.error.BusinessException;
 import com.backend.towork.jwt.domain.RefreshToken;
 import com.backend.towork.jwt.repository.RefreshTokenRepository;
 import com.backend.towork.jwt.utils.JwtTokenProvider;
@@ -48,7 +48,7 @@ public class SocialLoginService {
     public String getAuthorizationUriRequest(String registrationId) {
         OauthProviderRegistration oAuthProviderRegistration = inMemoryProviderRepository.findByProviderName(registrationId);
         if (oAuthProviderRegistration == null) {
-            throw new ExpectedException(400, "존재하지 않는 Provider ID 입니다.");
+            throw new BusinessException(400, "존재하지 않는 Provider ID 입니다.");
         }
         if (registrationId.equals("google")) {
             return UriComponentsBuilder.fromUriString(oAuthProviderRegistration.getAuthorizationUri())
@@ -66,7 +66,7 @@ public class SocialLoginService {
                     .build().toUriString();
         }
         else {
-            throw new ExpectedException(400, "유효하지 않는 Provider ID 입니다.");
+            throw new BusinessException(400, "유효하지 않는 Provider ID 입니다.");
         }
     }
 
@@ -109,7 +109,7 @@ public class SocialLoginService {
         // -> 코드 진행
         else {
             if (!member.getAuthProvider().equals(userInfo.getProvider().name())) {
-                throw new ExpectedException(400, "동일한 이메일이 존재합니다.");
+                throw new BusinessException(400, "동일한 이메일이 존재합니다.");
             }
         }
 

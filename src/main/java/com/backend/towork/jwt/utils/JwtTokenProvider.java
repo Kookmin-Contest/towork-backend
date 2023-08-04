@@ -1,5 +1,6 @@
 package com.backend.towork.jwt.utils;
 
+import com.backend.towork.jwt.error.TokenNotValidateException;
 import com.backend.towork.member.domain.entity.Member;
 import com.backend.towork.member.service.PrincipalDetailService;
 import io.jsonwebtoken.*;
@@ -54,11 +55,6 @@ public class JwtTokenProvider {
         return null;
     }
 
-    /**
-     * TODO: throw error and handle it
-     * 해당 error를 handling하기 위해선 AuthenticationEntryPoint라는 것을 사용해서
-     * Filter 단에서 에러를 처리해야 합니다!!
-     */
     public boolean validateToken(String token, Key secretKey) {
         try {
             Jwts.parserBuilder()
@@ -67,16 +63,9 @@ public class JwtTokenProvider {
                     .parseClaimsJws(token);
 
             return true;
-        } catch (SecurityException | MalformedJwtException e) {
-            log.info("잘못된 JWT 서명입니다.");
-        } catch (ExpiredJwtException e) {
-            log.info("만료된 JWT 토큰입니다.");
-        } catch (UnsupportedJwtException e) {
-            log.info("지원되지 않는 JWT 토큰입니다.");
-        } catch (IllegalArgumentException e) {
-            log.info("JWT 토큰이 잘못되었습니다.");
+        } catch (JwtException e) {
+            throw new TokenNotValidateException("JWT 토큰이 문제가 있습니다. -> " + e.getMessage());
         }
-        return false;
     }
 
     public Authentication getAuthentication(String token, Key secretKey) {

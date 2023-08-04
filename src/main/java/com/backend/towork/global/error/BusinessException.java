@@ -1,13 +1,13 @@
-package com.backend.towork.global.handler.exception;
+package com.backend.towork.global.error;
 
 import lombok.Getter;
 
 @Getter
-public class ExpectedException extends RuntimeException {
+public class BusinessException extends RuntimeException {
 
     private final int status;
 
-    public ExpectedException(int status, String msg) {
+    public BusinessException(int status, String msg) {
         super(msg);
         this.status = status;
     }
