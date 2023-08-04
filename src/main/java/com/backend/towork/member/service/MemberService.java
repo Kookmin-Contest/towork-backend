@@ -5,7 +5,6 @@ import com.backend.towork.member.domain.dto.request.NameUpdateRequestDto;
 import com.backend.towork.member.domain.dto.request.PhoneUpdateRequestDto;
 import com.backend.towork.member.domain.dto.response.MemberResponseDto;
 import com.backend.towork.member.domain.entity.Member;
-import com.backend.towork.member.domain.entity.PrincipalDetails;
 import com.backend.towork.member.repository.MemberRepository;
 import com.backend.towork.workspace.domain.dto.response.WorkspaceResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -33,21 +32,23 @@ public class MemberService {
                 .build();
     }
 
-    public void modifyName(NameUpdateRequestDto nameUpdateRequestDto, PrincipalDetails principal) {
-        Member member = principal.getMember();
+    @Transactional
+    public void modifyName(NameUpdateRequestDto nameUpdateRequestDto, Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                        .orElseThrow();
         member.changeName(nameUpdateRequestDto.getName());
-        memberRepository.save(member);
-    }
-
-    public void modifyPhone(PhoneUpdateRequestDto phoneUpdateRequestDto, PrincipalDetails principal) {
-        Member member = principal.getMember();
-        member.changePhoneNumber(phoneUpdateRequestDto.getPhoneNumber());
-        memberRepository.save(member);
     }
 
     @Transactional
-    public List<WorkspaceResponseDto> getWorkspacesOfMember(PrincipalDetails principal) {
-        Member member = memberRepository.findById(principal.getMember().getId())
+    public void modifyPhone(PhoneUpdateRequestDto phoneUpdateRequestDto, Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                        .orElseThrow();
+        member.changePhoneNumber(phoneUpdateRequestDto.getPhoneNumber());
+    }
+
+    @Transactional
+    public List<WorkspaceResponseDto> getWorkspacesOfMember(Long memberId) {
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ExpectedException(400, "test"));
 
         List<WorkspaceResponseDto> workspaceResponseDtos =

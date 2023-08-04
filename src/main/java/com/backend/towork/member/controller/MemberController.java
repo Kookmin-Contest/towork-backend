@@ -59,7 +59,7 @@ public class MemberController {
     )
     public ResponseEntity<?> modifyPhone(@Valid @RequestBody PhoneUpdateRequestDto phoneUpdateRequestDto,
                                                        @AuthenticationPrincipal PrincipalDetails principal) {
-        memberService.modifyPhone(phoneUpdateRequestDto, principal);
+        memberService.modifyPhone(phoneUpdateRequestDto, principal.getMember().getId());
         return ResponseEntity.ok()
                 .body(null);
     }
@@ -77,7 +77,7 @@ public class MemberController {
     )
     public ResponseEntity<?> modifyName(@Valid @RequestBody NameUpdateRequestDto nameUpdateRequestDto,
                                                       @AuthenticationPrincipal PrincipalDetails principal) {
-        memberService.modifyName(nameUpdateRequestDto, principal);
+        memberService.modifyName(nameUpdateRequestDto, principal.getMember().getId());
         return ResponseEntity.ok()
                 .body(null);
     }
@@ -85,7 +85,7 @@ public class MemberController {
     @GetMapping("/workspaces")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<WorkspaceResponseDto>> getWorkspacesOfMember(@AuthenticationPrincipal PrincipalDetails principal) {
-        List<WorkspaceResponseDto> workspaceResponseDtos = memberService.getWorkspacesOfMember(principal);
+        List<WorkspaceResponseDto> workspaceResponseDtos = memberService.getWorkspacesOfMember(principal.getMember().getId());
         return ResponseEntity.ok()
                 .body(workspaceResponseDtos);
     }
