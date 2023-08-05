@@ -1,21 +1,20 @@
-package com.backend.towork.workspace.domain.entify;
+package com.backend.towork.workspace.domain.entity;
 
 import com.backend.towork.member.domain.entity.Member;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
 @Entity
+@Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class Workspace {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
     @Column(name = "workspace_id")
     private Long id;
 
@@ -26,7 +25,7 @@ public class Workspace {
     @JoinColumn(name = "owner_id", nullable = false)
     private Member owner;
 
-    @OneToMany(mappedBy = "workspace")
-    private List<Participant> participant;
+    @OneToMany(mappedBy = "workspace", cascade = CascadeType.ALL)
+    private List<Participant> participants;
 
 }

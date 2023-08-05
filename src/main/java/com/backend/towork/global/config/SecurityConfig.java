@@ -1,10 +1,12 @@
 package com.backend.towork.global.config;
 
+import com.backend.towork.global.error.handler.DelegatingAccessDeniedHandler;
 import com.backend.towork.global.error.handler.DelegatingAuthenticationEntryPoint;
 import com.backend.towork.jwt.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -18,15 +20,17 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final DelegatingAccessDeniedHandler delegatingAccessDeniedHandler;
     private final DelegatingAuthenticationEntryPoint delegatingAuthenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
+        return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .headers(header -> header.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
@@ -45,11 +49,11 @@ public class SecurityConfig {
                                 new AntPathRequestMatcher("/h2-console/**")
                         ).permitAll()
                         .anyRequest().authenticated())
-                .exceptionHandling(exception ->
-                        exception.authenticationEntryPoint(delegatingAuthenticationEntryPoint))
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
-        return http.build();
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(exception -> exception
+                        .accessDeniedHandler(delegatingAccessDeniedHandler)
+                        .authenticationEntryPoint(delegatingAuthenticationEntryPoint))
+                .build();
     }
 
     @Bean

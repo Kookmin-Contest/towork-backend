@@ -1,16 +1,16 @@
 package com.backend.towork.global.error.handler;
 
-import jakarta.servlet.ServletException;
+import com.backend.towork.jwt.error.TokenNotValidateException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
-import java.io.IOException;
-
+@Slf4j
 @Component
 public class DelegatingAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
@@ -20,9 +20,16 @@ public class DelegatingAuthenticationEntryPoint implements AuthenticationEntryPo
         this.resolver = resolver;
     }
 
-    @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
-        resolver.resolveException(request, response, null, authException);
-    }
 
+    @Override
+    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) {
+        Exception exception = (Exception) request.getAttribute("exception");
+        if (exception instanceof TokenNotValidateException tokenNotValidateException) {
+            resolver.resolveException(request, response, null, tokenNotValidateException);
+        } else {
+            // 처리되지 않은 exception이 발생한 경우입니다.
+            log.error("{}: {}", exception.getClass(), exception.getMessage());
+            resolver.resolveException(request, response, null, exception);
+        }
+    }
 }

@@ -4,13 +4,18 @@ import com.backend.towork.member.domain.dto.request.NameUpdateRequestDto;
 import com.backend.towork.member.domain.dto.request.PhoneUpdateRequestDto;
 import com.backend.towork.member.domain.dto.response.MemberResponseDto;
 import com.backend.towork.member.domain.entity.Member;
-import com.backend.towork.member.domain.entity.PrincipalDetails;
 import com.backend.towork.member.repository.MemberRepository;
+import com.backend.towork.workspace.domain.dto.response.WorkspaceResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MemberService {
 
     private final MemberRepository memberRepository;
@@ -26,16 +31,26 @@ public class MemberService {
                 .build();
     }
 
-    public void modifyName(NameUpdateRequestDto nameUpdateRequestDto, PrincipalDetails principal) {
-        Member member = principal.getMember();
+    @Transactional
+    public void modifyName(NameUpdateRequestDto nameUpdateRequestDto, Member member) {
         member.changeName(nameUpdateRequestDto.getName());
-        memberRepository.save(member);
     }
 
-    public void modifyPhone(PhoneUpdateRequestDto phoneUpdateRequestDto, PrincipalDetails principal) {
-        Member member = principal.getMember();
+    @Transactional
+    public void modifyPhone(PhoneUpdateRequestDto phoneUpdateRequestDto, Member member) {
         member.changePhoneNumber(phoneUpdateRequestDto.getPhoneNumber());
-        memberRepository.save(member);
     }
 
+    @Transactional
+    public List<WorkspaceResponseDto> getWorkspacesOfMember(Member member) {
+        List<WorkspaceResponseDto> workspaceResponseDtos =
+                new ArrayList<>();
+        member.getWorkspaces().forEach(workspaceEntity -> {
+            workspaceResponseDtos.add(WorkspaceResponseDto.builder()
+                    .id(workspaceEntity.getId())
+                    .workspaceName(workspaceEntity.getName())
+                    .build());
+        });
+        return workspaceResponseDtos;
+    }
 }

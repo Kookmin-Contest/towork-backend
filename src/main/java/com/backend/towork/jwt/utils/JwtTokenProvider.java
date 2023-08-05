@@ -4,6 +4,7 @@ import com.backend.towork.jwt.error.TokenNotValidateException;
 import com.backend.towork.member.domain.entity.Member;
 import com.backend.towork.member.service.PrincipalDetailService;
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,8 +25,8 @@ public class JwtTokenProvider {
 
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String GRANT_TYPE = "Bearer ";
-    private static final long AT_EXPIRED_DURATION = 30 * 1000;
-    private static final long RT_EXPIRED_DURATION = 24 * 60 * 60 * 1000;
+    private static final long AT_EXPIRED_DURATION = 60 * 1000;
+    private static final long RT_EXPIRED_DURATION = 60 * 60 * 1000;
     private final PrincipalDetailService principalDetailService;
 
     public String generateToken(Member member) {
@@ -55,16 +56,20 @@ public class JwtTokenProvider {
         return null;
     }
 
-    public boolean validateToken(String token, Key secretKey) {
+    public void validateToken(String token, Key secretKey) {
         try {
             Jwts.parserBuilder()
                     .setSigningKey(secretKey)
                     .build()
                     .parseClaimsJws(token);
-
-            return true;
-        } catch (JwtException e) {
-            throw new TokenNotValidateException("JWT 토큰이 문제가 있습니다. -> " + e.getMessage());
+        } catch (SignatureException e) {
+            throw new TokenNotValidateException("토큰의 서명이 올바르지 않습니다.");
+        } catch (MalformedJwtException e) {
+            throw new TokenNotValidateException("토큰이 올바르지 않습니다.");
+        } catch (ExpiredJwtException e) {
+            throw new TokenNotValidateException("토큰이 만료되었습니다.");
+        } catch (IllegalArgumentException e) {
+            throw new TokenNotValidateException("토큰이 주어지지 않았습니다.");
         }
     }
 

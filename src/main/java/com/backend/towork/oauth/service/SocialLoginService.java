@@ -1,6 +1,6 @@
 package com.backend.towork.oauth.service;
 
-import com.backend.towork.global.error.BusinessException;
+import com.backend.towork.global.error.exception.BusinessException;
 import com.backend.towork.jwt.domain.RefreshToken;
 import com.backend.towork.jwt.repository.RefreshTokenRepository;
 import com.backend.towork.jwt.utils.JwtTokenProvider;

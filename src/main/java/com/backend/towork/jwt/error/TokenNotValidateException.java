@@ -1,6 +1,6 @@
 package com.backend.towork.jwt.error;
 
-import com.backend.towork.global.error.BusinessException;
+import com.backend.towork.global.error.exception.BusinessException;
 
 public class TokenNotValidateException extends BusinessException {
 

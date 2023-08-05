@@ -4,8 +4,10 @@ import com.backend.towork.global.error.ErrorResponse;
 import com.backend.towork.member.domain.dto.request.NameUpdateRequestDto;
 import com.backend.towork.member.domain.dto.request.PhoneUpdateRequestDto;
 import com.backend.towork.member.domain.dto.response.MemberResponseDto;
+import com.backend.towork.member.domain.entity.Member;
 import com.backend.towork.member.domain.entity.PrincipalDetails;
 import com.backend.towork.member.service.MemberService;
+import com.backend.towork.workspace.domain.dto.response.WorkspaceResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,6 +19,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -37,8 +41,9 @@ public class MemberController {
                     @ApiResponse(responseCode = "401", description = "만료된 토큰이거나 잘못된 토큰임.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             }
     )
-    public ResponseEntity<MemberResponseDto> getMemberInfo(@AuthenticationPrincipal PrincipalDetails principal) {
-        MemberResponseDto memberResponseDto = memberService.getMemberInfo(principal.getMember());
+    public ResponseEntity<MemberResponseDto> getMemberInfo(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+        Member member = principalDetails.getMember();
+        MemberResponseDto memberResponseDto = memberService.getMemberInfo(member);
         return ResponseEntity.ok()
                 .body(memberResponseDto);
     }
@@ -55,8 +60,9 @@ public class MemberController {
             }
     )
     public ResponseEntity<?> modifyPhone(@Valid @RequestBody PhoneUpdateRequestDto phoneUpdateRequestDto,
-                                                       @AuthenticationPrincipal PrincipalDetails principal) {
-        memberService.modifyPhone(phoneUpdateRequestDto, principal);
+                                                       @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        Member member = principalDetails.getMember();
+        memberService.modifyPhone(phoneUpdateRequestDto, member);
         return ResponseEntity.ok()
                 .body(null);
     }
@@ -74,9 +80,27 @@ public class MemberController {
     )
     public ResponseEntity<?> modifyName(@Valid @RequestBody NameUpdateRequestDto nameUpdateRequestDto,
                                                       @AuthenticationPrincipal PrincipalDetails principal) {
-        memberService.modifyName(nameUpdateRequestDto, principal);
+        Member member = principal.getMember();
+        memberService.modifyName(nameUpdateRequestDto, member);
         return ResponseEntity.ok()
                 .body(null);
+    }
+
+    @GetMapping("/workspaces")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(
+            summary = "멤버 이름 업데이트",
+            description = "토큰에 명시된 멤버의 이름을 업데이트합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "성공적으로 본인의 워크스페이스의 정보를 가져옴."),
+                    @ApiResponse(responseCode = "401", description = "만료된 토큰이거나 잘못된 토큰임.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            }
+    )
+    public ResponseEntity<List<WorkspaceResponseDto>> getWorkspacesOfMember(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+        Member member = principalDetails.getMember();
+        List<WorkspaceResponseDto> workspaceResponseDtos = memberService.getWorkspacesOfMember(member);
+        return ResponseEntity.ok()
+                .body(workspaceResponseDtos);
     }
 
 }
