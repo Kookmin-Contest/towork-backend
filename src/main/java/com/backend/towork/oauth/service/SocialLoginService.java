@@ -5,7 +5,7 @@ import com.backend.towork.jwt.domain.RefreshToken;
 import com.backend.towork.jwt.repository.RefreshTokenRepository;
 import com.backend.towork.jwt.utils.JwtTokenProvider;
 import com.backend.towork.member.domain.dto.response.OauthTokenResponseDto;
-import com.backend.towork.member.domain.dto.response.TokenResponseDto;
+import com.backend.towork.auth.domain.dto.response.TokenResponseDto;
 import com.backend.towork.member.domain.entity.Member;
 import com.backend.towork.member.domain.entity.Role;
 import com.backend.towork.member.repository.MemberRepository;

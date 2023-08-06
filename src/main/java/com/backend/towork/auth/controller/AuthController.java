@@ -1,11 +1,12 @@
-package com.backend.towork.member.controller;
+package com.backend.towork.auth.controller;
 
 import com.backend.towork.global.error.ErrorResponse;
-import com.backend.towork.member.domain.dto.request.LoginRequestDto;
+import com.backend.towork.auth.domain.dto.request.DuplicateEmailRequestDto;
+import com.backend.towork.auth.domain.dto.request.LoginRequestDto;
 import com.backend.towork.member.domain.dto.request.MemberRequestDto;
-import com.backend.towork.member.domain.dto.request.ReissueRequestDto;
-import com.backend.towork.member.domain.dto.response.TokenResponseDto;
-import com.backend.towork.member.service.AuthService;
+import com.backend.towork.auth.domain.dto.request.ReissueRequestDto;
+import com.backend.towork.auth.domain.dto.response.TokenResponseDto;
+import com.backend.towork.auth.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -78,8 +79,13 @@ public class AuthController {
                 .body(tokenResponseDto);
     }
 
-
-
+    @PostMapping("/duplicate-email")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<?> validateDuplicateEmail(@RequestBody @Valid DuplicateEmailRequestDto duplicateEmailRequestDto) {
+        authService.emailExists(duplicateEmailRequestDto.getEmail());
+        return ResponseEntity.ok()
+                .body(null);
+    }
 
     // TODO: Implement Logout
 }

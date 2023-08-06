@@ -1,4 +1,4 @@
-package com.backend.towork.member.domain.dto.response;
+package com.backend.towork.auth.domain.dto.response;
 
 import lombok.Builder;
 import lombok.Getter;

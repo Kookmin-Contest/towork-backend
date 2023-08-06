@@ -1,18 +1,18 @@
-package com.backend.towork.member.service;
+package com.backend.towork.auth.service;
 
-import com.backend.towork.global.error.exception.BusinessException;
 import com.backend.towork.jwt.domain.RefreshToken;
 import com.backend.towork.jwt.error.TokenNotValidateException;
 import com.backend.towork.jwt.repository.RefreshTokenRepository;
 import com.backend.towork.jwt.utils.JwtTokenKeys;
 import com.backend.towork.jwt.utils.JwtTokenProvider;
-import com.backend.towork.member.domain.dto.request.LoginRequestDto;
+import com.backend.towork.auth.domain.dto.request.LoginRequestDto;
 import com.backend.towork.member.domain.dto.request.MemberRequestDto;
-import com.backend.towork.member.domain.dto.request.ReissueRequestDto;
-import com.backend.towork.member.domain.dto.response.TokenResponseDto;
+import com.backend.towork.auth.domain.dto.request.ReissueRequestDto;
+import com.backend.towork.auth.domain.dto.response.TokenResponseDto;
 import com.backend.towork.member.domain.entity.Member;
 import com.backend.towork.member.domain.entity.Role;
-import com.backend.towork.member.error.exception.InvalidEmailPasswordException;
+import com.backend.towork.auth.error.exception.AlreadyEmailExistException;
+import com.backend.towork.auth.error.exception.InvalidEmailPasswordException;
 import com.backend.towork.member.error.exception.MemberNotFoundException;
 import com.backend.towork.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -40,15 +40,16 @@ public class AuthService {
         refreshTokenRepository.save(RefreshToken.builder().username(username).refreshToken(refreshToken).build());
     }
 
-    private boolean emailExists(String email) {
-        return memberRepository.findByEmail(email).isPresent();
+    public void emailExists(String email) {
+        memberRepository.findByEmail(email)
+                .ifPresent(m -> {
+                    throw new AlreadyEmailExistException();
+                });
     }
 
     @Transactional
     public void signUp(final MemberRequestDto memberRequestDto) {
-        if (emailExists(memberRequestDto.getEmail())) {
-            throw new BusinessException(400, "이미 존재하는 이메일입니다.");
-        }
+        emailExists(memberRequestDto.getEmail());
 
         String encodedPassword = passwordEncoder.encode(memberRequestDto.getPassword());
 

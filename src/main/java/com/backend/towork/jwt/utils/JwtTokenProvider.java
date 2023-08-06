@@ -2,7 +2,7 @@ package com.backend.towork.jwt.utils;
 
 import com.backend.towork.jwt.error.TokenNotValidateException;
 import com.backend.towork.member.domain.entity.Member;
-import com.backend.towork.member.service.PrincipalDetailService;
+import com.backend.towork.auth.service.PrincipalDetailService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.http.HttpServletRequest;
