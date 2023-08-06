@@ -60,6 +60,10 @@ public class Member {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    public int getCountWorkspace() {
+        return workspaces.size();
+    }
+
     public void changePhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
