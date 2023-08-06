@@ -1,6 +1,7 @@
 package com.backend.towork.member.service;
 
 
+import com.backend.towork.auth.service.AuthService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

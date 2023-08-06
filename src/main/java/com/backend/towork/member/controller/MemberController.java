@@ -5,7 +5,7 @@ import com.backend.towork.member.domain.dto.request.NameUpdateRequestDto;
 import com.backend.towork.member.domain.dto.request.PhoneUpdateRequestDto;
 import com.backend.towork.member.domain.dto.response.MemberResponseDto;
 import com.backend.towork.member.domain.entity.Member;
-import com.backend.towork.member.domain.entity.PrincipalDetails;
+import com.backend.towork.auth.domain.entity.PrincipalDetails;
 import com.backend.towork.member.service.MemberService;
 import com.backend.towork.workspace.domain.dto.response.WorkspaceResponseDto;
 import io.swagger.v3.oas.annotations.Operation;

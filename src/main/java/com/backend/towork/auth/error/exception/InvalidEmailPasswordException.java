@@ -1,4 +1,4 @@
-package com.backend.towork.member.error.exception;
+package com.backend.towork.auth.error.exception;
 
 import com.backend.towork.global.error.exception.InvalidValueException;
 

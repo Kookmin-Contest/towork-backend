@@ -2,7 +2,7 @@ package com.backend.towork.workspace.controller;
 
 import com.backend.towork.global.error.ErrorResponse;
 import com.backend.towork.member.domain.entity.Member;
-import com.backend.towork.member.domain.entity.PrincipalDetails;
+import com.backend.towork.auth.domain.entity.PrincipalDetails;
 import com.backend.towork.workspace.domain.dto.request.WorkspaceRequestDto;
 import com.backend.towork.workspace.domain.dto.response.WorkspaceResponseDto;
 import com.backend.towork.workspace.service.WorkspaceService;

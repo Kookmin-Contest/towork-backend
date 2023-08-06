@@ -1,5 +1,6 @@
-package com.backend.towork.member.domain.entity;
+package com.backend.towork.auth.domain.entity;
 
+import com.backend.towork.member.domain.entity.Member;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

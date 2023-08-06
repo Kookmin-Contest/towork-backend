@@ -1,7 +1,7 @@
-package com.backend.towork.member.service;
+package com.backend.towork.auth.service;
 
 import com.backend.towork.member.domain.entity.Member;
-import com.backend.towork.member.domain.entity.PrincipalDetails;
+import com.backend.towork.auth.domain.entity.PrincipalDetails;
 import com.backend.towork.member.error.exception.MemberNotFoundException;
 import com.backend.towork.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.backend.towork.member.domain.dto.request;
+package com.backend.towork.auth.domain.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
