@@ -28,6 +28,7 @@ public class MemberService {
                 .phoneNumber(member.getPhoneNumber())
                 .birthDate(member.getBirthDate())
                 .createDateTime(member.getCreateDateTime())
+                .countWorkspace(member.getCountWorkspace())
                 .build();
     }
 

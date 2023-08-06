@@ -27,4 +27,6 @@ public class MemberResponseDto {
 
     private LocalDateTime createDateTime;
 
+    private int countWorkspace;
+
 }
