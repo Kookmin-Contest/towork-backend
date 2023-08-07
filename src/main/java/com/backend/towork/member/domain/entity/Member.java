@@ -1,5 +1,6 @@
 package com.backend.towork.member.domain.entity;
 
+import com.backend.towork.member.domain.dto.response.MemberResponseDto;
 import com.backend.towork.workspace.domain.entity.Participant;
 import com.backend.towork.workspace.domain.entity.Workspace;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -70,5 +71,17 @@ public class Member {
 
     public void changeName(String name) {
         this.name = name;
+    }
+
+    public MemberResponseDto toDto() {
+        return MemberResponseDto.builder()
+                .memberId(this.id)
+                .email(this.email)
+                .name(this.name)
+                .phoneNumber(this.phoneNumber)
+                .birthDate(this.birthDate)
+                .createDateTime(this.createDateTime)
+                .countWorkspace(this.getCountWorkspace())
+                .build();
     }
 }

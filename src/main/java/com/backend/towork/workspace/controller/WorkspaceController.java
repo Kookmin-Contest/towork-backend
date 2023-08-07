@@ -1,8 +1,9 @@
 package com.backend.towork.workspace.controller;
 
-import com.backend.towork.global.error.ErrorResponse;
-import com.backend.towork.member.domain.entity.Member;
 import com.backend.towork.auth.domain.entity.PrincipalDetails;
+import com.backend.towork.global.error.ErrorResponse;
+import com.backend.towork.member.domain.dto.response.MemberResponseDto;
+import com.backend.towork.member.domain.entity.Member;
 import com.backend.towork.workspace.domain.dto.request.WorkspaceRequestDto;
 import com.backend.towork.workspace.domain.dto.response.WorkspaceResponseDto;
 import com.backend.towork.workspace.service.WorkspaceService;
@@ -16,6 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -62,5 +65,15 @@ public class WorkspaceController {
         WorkspaceResponseDto responseDto = workspaceService.getWorkspaceInfoByWorkspaceId(workspaceId, member);
         return ResponseEntity.ok()
                 .body(responseDto);
+    }
+
+    @GetMapping("/{workspaceId}/members")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<MemberResponseDto>> getMembersOfWorkspace(@PathVariable Long workspaceId,
+                                                                         @AuthenticationPrincipal PrincipalDetails principalDetails) {
+        Member member = principalDetails.getMember();
+        List<MemberResponseDto> membersOfWorkspace = workspaceService.getMembersOfWorkspace(workspaceId, member);
+        return ResponseEntity.ok()
+                .body(membersOfWorkspace);
     }
 }

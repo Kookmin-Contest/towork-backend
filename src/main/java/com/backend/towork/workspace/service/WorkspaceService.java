@@ -1,6 +1,8 @@
 package com.backend.towork.workspace.service;
 
+import com.backend.towork.member.domain.dto.response.MemberResponseDto;
 import com.backend.towork.member.domain.entity.Member;
+import com.backend.towork.member.repository.MemberRepository;
 import com.backend.towork.workspace.domain.dto.request.WorkspaceRequestDto;
 import com.backend.towork.workspace.domain.dto.response.WorkspaceResponseDto;
 import com.backend.towork.workspace.domain.entity.Participant;
@@ -23,6 +25,7 @@ import java.util.List;
 public class WorkspaceService {
 
     private final WorkspaceRepository workspaceRepository;
+    private final MemberRepository memberRepository;
 
     // TODO: workspace name으로 제한걸기, 개수 제한하기
     @Transactional
@@ -51,4 +54,11 @@ public class WorkspaceService {
                 .build();
     }
 
+    @PreAuthorize("@scopeService.hasUserScopeByWorkspaceId(#workspaceId, #member.id)")
+    public List<MemberResponseDto> getMembersOfWorkspace(Long workspaceId, Member member) {
+        List<Member> members = memberRepository.findByWorkspaceId(workspaceId);
+        return members.stream()
+                .map(Member::toDto)
+                .toList();
+    }
 }
