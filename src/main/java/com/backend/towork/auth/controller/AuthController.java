@@ -67,7 +67,7 @@ public class AuthController {
             summary = "토큰 재발급",
             description = "refreshToken을 이용하여 accessToken과 refreshToken을 재발급합니다.",
             responses = {
-                    @ApiResponse(responseCode = "200", description = "재발급 성공.", content = @Content(schema = @Schema(implementation = ReissueRequestDto.class))),
+                    @ApiResponse(responseCode = "200", description = "재발급 성공.", content = @Content(schema = @Schema(implementation = TokenResponseDto.class))),
                     @ApiResponse(responseCode = "400", description = "주어진 정보가 올바르지 않음.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                     @ApiResponse(responseCode = "401", description = "만료된 토큰이거나 잘못된 토큰임.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             },
