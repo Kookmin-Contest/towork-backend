@@ -1,0 +1,18 @@
+version: "3"
+services:
+  mysql:
+    container_name: mysql
+    image: mysql:latest
+    environment:
+      TZ: Asia/Seoul
+      MYSQL_DATABASE: towork
+      MYSQL_ROOT_PASSWORD: 12345678@
+    ports:
+      - "3306:3306"
+
+  redis:
+    container_name: redis
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
