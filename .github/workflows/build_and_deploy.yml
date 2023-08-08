@@ -34,6 +34,8 @@ jobs:
         path: build/libs/*.jar
  
   deploy:
+    needs:
+      - build
 
     runs-on: ubuntu-latest
 
