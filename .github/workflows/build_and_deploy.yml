@@ -1,7 +1,7 @@
-name: build and deploy
+name: Build and Deploy
 
 on:
-  push:
+  pull_request:
     branches: [ "master" ]
 
 permissions:
@@ -25,16 +25,22 @@ jobs:
       uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
       with:
         arguments: build
-  
+    
+    - name: Upload JAR File
+      uses: actions/upload-artifact@v3
+      with:
+        name: jar-artifact
+        path: build/libs/*.jar
+ 
   deploy:
-    needs: build
+
     runs-on: ubuntu-latest
+
     steps:
-      - name: Download artifact
+      - name: Download JAR File
         uses: actions/download-artifact@v3
         with:
-          name: jar-artifact
-          path: build/libs/*.jar
+          name: build-artifact
           
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.5.4
