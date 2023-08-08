@@ -24,6 +24,10 @@ public class DelegatingAuthenticationEntryPoint implements AuthenticationEntryPo
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) {
         Exception exception = (Exception) request.getAttribute("exception");
+        if (exception == null) {
+            return;
+        }
+
         if (exception instanceof TokenNotValidateException tokenNotValidateException) {
             resolver.resolveException(request, response, null, tokenNotValidateException);
         } else {

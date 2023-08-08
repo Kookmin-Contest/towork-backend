@@ -12,7 +12,7 @@ import lombok.*;
 public class Participant {
 
     @Getter
-    @Id @GeneratedValue
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "participant_id")
     private Long id;
 
