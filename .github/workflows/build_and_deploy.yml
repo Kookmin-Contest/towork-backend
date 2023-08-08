@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - master
-  pull_request:
-    branches:
-      - master
 
 permissions:
   contents: read
@@ -44,7 +41,7 @@ jobs:
       - name: Download JAR File
         uses: actions/download-artifact@v3
         with:
-          name: build-artifact
+          name: jar-artifact
           
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.5.4
