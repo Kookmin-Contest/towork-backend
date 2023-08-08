@@ -32,10 +32,9 @@ public class AuthController {
             summary = "회원가입",
             description = "주어진 멤버 정보를 DB에 저장합니다.",
             responses = {
-                    @ApiResponse(responseCode = "201", description = "성공적으로 멤버 정보가 저장됨.", content = @Content(schema = @Schema(implementation = MemberRequestDto.class))),
+                    @ApiResponse(responseCode = "201", description = "성공적으로 멤버 정보가 저장됨."),
                     @ApiResponse(responseCode = "400", description = "주어진 정보가 올바르지 않음.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-            },
-            security = {}
+            }
     )
     public ResponseEntity<?> signUp(@RequestBody @Valid final MemberRequestDto memberRequestDto) {
         authService.signUp(memberRequestDto);
@@ -52,8 +51,7 @@ public class AuthController {
             responses = {
                     @ApiResponse(responseCode = "200", description = "로그인 성공.", content = @Content(schema = @Schema(implementation = LoginRequestDto.class))),
                     @ApiResponse(responseCode = "400", description = "주어진 정보가 올바르지 않음.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-            },
-            security = {}
+            }
     )
     public ResponseEntity<TokenResponseDto> login(@RequestBody @Valid LoginRequestDto loginRequestDto) {
         TokenResponseDto tokenResponseDto = authService.login(loginRequestDto);
@@ -70,8 +68,7 @@ public class AuthController {
                     @ApiResponse(responseCode = "200", description = "재발급 성공.", content = @Content(schema = @Schema(implementation = TokenResponseDto.class))),
                     @ApiResponse(responseCode = "400", description = "주어진 정보가 올바르지 않음.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
                     @ApiResponse(responseCode = "401", description = "만료된 토큰이거나 잘못된 토큰임.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-            },
-            security = {}
+            }
     )
     public ResponseEntity<TokenResponseDto> reissue(@RequestBody @Valid ReissueRequestDto reissueRequestDto) {
         TokenResponseDto tokenResponseDto = authService.reissue(reissueRequestDto);
@@ -81,6 +78,15 @@ public class AuthController {
 
     @PostMapping("/duplicate-email")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(
+            summary = "이메일 중복검사",
+            description = "중복된 이메일이 있는지 없는지 확인합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "중복된 이메일이 없음.", content = @Content(schema = @Schema(implementation = TokenResponseDto.class))),
+                    @ApiResponse(responseCode = "400", description = "주어진 이메일이 형식이 맞지 않거나, 중복됨.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+                    @ApiResponse(responseCode = "401", description = "만료된 토큰이거나 잘못된 토큰임.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+            }
+    )
     public ResponseEntity<?> validateDuplicateEmail(@RequestBody @Valid DuplicateEmailRequestDto duplicateEmailRequestDto) {
         authService.emailExists(duplicateEmailRequestDto.getEmail());
         return ResponseEntity.ok()
