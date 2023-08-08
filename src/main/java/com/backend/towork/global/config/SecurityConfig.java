@@ -44,10 +44,6 @@ public class SecurityConfig {
                                 "/auth/**",
                                 "/oauth2/**"
                         ).permitAll()
-                        .requestMatchers(
-                                // h2 database console
-                                new AntPathRequestMatcher("/h2-console/**")
-                        ).permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exception -> exception

@@ -14,7 +14,7 @@ import java.util.List;
 public class Workspace {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "workspace_id")
     private Long id;
 
