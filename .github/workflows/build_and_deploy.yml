@@ -59,4 +59,4 @@ jobs:
         run: scp *.jar ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/
 
       - name: Execute remote commands
-        run: ssh -v ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "sudo nohup java -jar ~/*.jar > ~/log/nohup.log 2>&1 &"
+        run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "sudo nohup java -jar ~/*.jar > ~/log/nohup.log 2>&1 &"
