@@ -1,9 +1,47 @@
 spring:
+  jpa:
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQLDialect
+
+---
+
+spring:
+
+  config:
+    activate:
+      on-profile: db-local
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/backend
+    username: root
+    password: 12345678@
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+
+---
+
+spring:
+
+  config:
+    activate:
+      on-profile: db-dev
 
   datasource:
     url: jdbc:mysql://mysql:3306/backend
     username: root
-    password: 12345678@
+    password: g27no795h8pce4YFdbmD
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   data:
@@ -14,9 +52,3 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    properties:
-      hibernate:
-        format_sql: true
-        show_sql: true
-    database: mysql
-    database-platform: org.hibernate.dialect.MySQLDialect

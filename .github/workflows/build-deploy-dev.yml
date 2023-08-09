@@ -1,4 +1,4 @@
-name: Build and Deploy
+name: Build and Deploy to Dev server
 
 on:
   push:
@@ -30,15 +30,15 @@ jobs:
     - name: Push Docker Images
       run: |
         docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-        docker build -t ${{ secrets.DOCKER_REPO }}/tdwork-api-server
+        docker build -t ${{ secrets.DOCKER_REPO }}/tdwork-api-server --build-arg profile=dev .
         docker push ${{ secrets.DOCKER_REPO }}/tdwork-api-server
 
-    - name: Upload docker-compose.yml
+    - name: Upload docker-compose-dev.yml
       uses: actions/upload-artifact@v3
       with:
         name: docker-compose
         path: |
-          ./docker-compose.yml
+          ./docker-compose-dev.yml
           .config
  
   deploy:
@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download docker-compose.yml
+      - name: Download docker-compose-dev.yml
         uses: actions/download-artifact@v3
         with:
           name: docker-compose .config
@@ -65,7 +65,7 @@ jobs:
 
       - name: SCP transfer
         run: |
-          scp ./docker-compose.yml ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/
+          scp ./docker-compose-dev.yml ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/docker-compose.yml
           scp -r .platform ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/
 
       - name: Execute remote commands
