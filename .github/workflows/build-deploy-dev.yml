@@ -36,7 +36,7 @@ jobs:
     - name: Upload docker-compose-dev.yml
       uses: actions/upload-artifact@v3
       with:
-        name: docker-compose
+        name: docker-artifact
         path: |
           ./docker-compose-dev.yml
           .config
@@ -51,7 +51,7 @@ jobs:
       - name: Download docker-compose-dev.yml
         uses: actions/download-artifact@v3
         with:
-          name: docker-compose .config
+          name: docker-artifact
 
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.7.0
