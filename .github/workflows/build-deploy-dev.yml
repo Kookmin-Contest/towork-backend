@@ -1,0 +1,76 @@
+name: Build and Deploy to Dev server
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
+    - name: Build with Gradle
+      uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
+      with:
+        arguments: build
+
+    - name: Push Docker Images
+      run: |
+        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+        docker build -t ${{ secrets.DOCKER_REPO }}/tdwork-api-server --build-arg profile=dev .
+        docker push ${{ secrets.DOCKER_REPO }}/tdwork-api-server
+
+    - name: Upload docker-compose-dev.yml
+      uses: actions/upload-artifact@v3
+      with:
+        name: docker-compose
+        path: |
+          ./docker-compose-dev.yml
+          .config
+ 
+  deploy:
+    needs:
+      - build
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download docker-compose-dev.yml
+        uses: actions/download-artifact@v3
+        with:
+          name: docker-compose .config
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add remote server to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+
+      - name: SCP transfer
+        run: |
+          scp ./docker-compose-dev.yml ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/docker-compose.yml
+          scp -r .platform ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/
+
+      - name: Execute remote commands
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "sudo docker rm -f $(docker ps -qa)"
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "sudo docker pull ${{ secrets.DOCKER_REPO }}/tdwork-api-server"
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "docker-compose up -d"
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "docker image prune -a -f"

@@ -1,0 +1,48 @@
+version: "3"
+
+services:
+
+  mysql:
+    container_name: mysql
+    image: mysql:latest
+    restart: unless-stopped
+    ports:
+      - "8200:3306"
+    environment:
+      TZ: Asia/Seoul
+      LC_ALL: C.UTF-8
+      LANG: C.UTF-8
+      MYSQL_ROOT_PASSWORD: g27no795h8pce4YFdbmD
+      MYSQL_DATABASE: backend
+    volumes:
+      - ./.volumes/mysql-data:/var/lib/mysql
+
+  redis:
+    container_name: redis
+    image: redis:latest
+    restart: unless-stopped
+    ports:
+      - "8300:6379"
+    volumes:
+      - ./.volumes/redis-data:/data:rw
+
+  api-server:
+    container_name: api-server
+    image: hsukju00/tdwork-api-server
+    ports:
+      - "8400:8080"
+    environment:
+      - "SPRING_PROFILES_ACTIVE=dev"
+    depends_on:
+      - mysql
+      - redis
+
+  nginx:
+    container_name: nginx
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ./.platform/nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - api-server

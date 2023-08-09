@@ -1,32 +1,14 @@
 spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/towork
-    username: root
-    password: 12345678@
-    driver-class-name: com.mysql.cj.jdbc.Driver
-
-  jpa:
-    hibernate:
-      ddl-auto: create-drop
-    properties:
-      hibernate:
-        format_sql: true
-        show_sql: true
-    database: mysql
-    database-platform: org.hibernate.dialect.MySQLDialect
-    defer-datasource-initialization: true
-
-  sql:
-    init:
-      mode: always
-
-  data:
-    redis:
-      host: localhost
-      port: 6379
-
   profiles:
-    include: oauth
+    active: local
+    group:
+      local:
+        - db-local
+      dev:
+        - db-dev
+    include:
+      - db
+      - oauth
 
 jwt:
   accessKey: 905bb9e2d658a6d3f1ee9331006a62730b1e1a394d077e2441a480f9385f2aa3bc9e86af832b933408d8a83d2526a208246ed681cd31729d853f4d384e6cf9ab
