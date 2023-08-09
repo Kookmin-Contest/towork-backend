@@ -31,7 +31,7 @@ jobs:
       run: |
         docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
         docker build -t ${{ secrets.DOCKER_REPO }}/tdwork-api-server
-        docker push ${{ secrets.DOCKER_REPO }}/tdwork-nginx
+        docker push ${{ secrets.DOCKER_REPO }}/tdwork-api-server
 
     - name: Upload docker-compose.yml
       uses: actions/upload-artifact@v3
@@ -66,12 +66,11 @@ jobs:
       - name: SCP transfer
         run: |
           scp ./docker-compose.yml ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/
-          scp -r .config ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/
+          scp -r .platform ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/
 
       - name: Execute remote commands
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "sudo docker rm -f $(docker ps -qa)"
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "sudo docker pull ${{ secrets.DOCKER_REPO }}/tdwork-api-server"
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "sudo docker pull ${{ secrets.DOCKER_REPO }}/tdwork-nginx"
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "docker-compose up -d"
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "docker image prune -a"
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "docker image prune -a -f"

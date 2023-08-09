@@ -28,7 +28,7 @@ services:
 
   api-server:
     container_name: api-server
-    build: .
+    image: hsukju00/tdwork-api-server
     ports:
       - "8400:8080"
     depends_on:
