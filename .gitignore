@@ -5,7 +5,8 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 src/main/generated
-volumes
+.volumes
+
 
 ### STS ###
 .apt_generated

@@ -12,6 +12,7 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+
     steps:
     - uses: actions/checkout@v3
     
@@ -36,7 +37,9 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: docker-compose
-        path: ./docker-compose.yml
+        path: |
+          ./docker-compose.yml
+          .config
  
   deploy:
     needs:
@@ -48,7 +51,7 @@ jobs:
       - name: Download docker-compose.yml
         uses: actions/download-artifact@v3
         with:
-          name: docker-compose
+          name: docker-compose .config
 
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.7.0
@@ -61,7 +64,9 @@ jobs:
           ssh-keyscan ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
 
       - name: SCP transfer
-        run: scp ./docker-compose.yml ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/
+        run: |
+          scp ./docker-compose.yml ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/
+          scp -r .config ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/
 
       - name: Execute remote commands
         run: |
@@ -69,4 +74,4 @@ jobs:
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "sudo docker pull ${{ secrets.DOCKER_REPO }}/tdwork-api-server"
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "sudo docker pull ${{ secrets.DOCKER_REPO }}/tdwork-nginx"
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "docker-compose up -d"
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "docker image prune -f"
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "docker image prune -a"
