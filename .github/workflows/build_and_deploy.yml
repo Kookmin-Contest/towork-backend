@@ -12,7 +12,6 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
     
@@ -26,12 +25,18 @@ jobs:
       uses: gradle/gradle-build-action@bd5760595778326ba7f1441bcf7e88b49de61a25 # v2.6.0
       with:
         arguments: build
-    
-    - name: Upload JAR File
+
+    - name: Push Docker Images
+      run: |
+        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+        docker build -t ${{ secrets.DOCKER_REPO }}/tdwork-api-server
+        docker push ${{ secrets.DOCKER_REPO }}/tdwork-nginx
+
+    - name: Upload docker-compose.yml
       uses: actions/upload-artifact@v3
       with:
-        name: jar-artifact
-        path: build/libs/*.jar
+        name: docker-compose
+        path: ./docker-compose.yml
  
   deploy:
     needs:
@@ -40,11 +45,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download JAR File
+      - name: Download docker-compose.yml
         uses: actions/download-artifact@v3
         with:
-          name: jar-artifact
-          
+          name: docker-compose
+
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.7.0
         with:
@@ -54,11 +59,14 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
-          
+
       - name: SCP transfer
-        run: scp *.jar ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/
+        run: scp ./docker-compose.yml ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/
 
       - name: Execute remote commands
         run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "sudo fuser -k 8080/tcp || true"
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "sudo nohup java -jar ~/*.jar > ~/log/nohup.log 2>&1 &"
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "sudo docker rm -f $(docker ps -qa)"
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "sudo docker pull ${{ secrets.DOCKER_REPO }}/tdwork-api-server"
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "sudo docker pull ${{ secrets.DOCKER_REPO }}/tdwork-nginx"
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "docker-compose up -d"
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "docker image prune -f"
