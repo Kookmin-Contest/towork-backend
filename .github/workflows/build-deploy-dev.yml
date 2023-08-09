@@ -39,7 +39,7 @@ jobs:
         name: docker-artifact
         path: |
           ./docker-compose-dev.yml
-          .config
+          .platform
  
   deploy:
     needs:
