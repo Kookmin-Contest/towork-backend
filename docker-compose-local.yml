@@ -1,0 +1,21 @@
+version: "3"
+
+services:
+
+  mysql:
+    container_name: mysql
+    image: mysql:latest
+    ports:
+      - "3306:3306"
+    environment:
+      TZ: Asia/Seoul
+      LC_ALL: C.UTF-8
+      LANG: C.UTF-8
+      MYSQL_ROOT_PASSWORD: 12345678@
+      MYSQL_DATABASE: backend
+
+  redis:
+    container_name: redis
+    image: redis:latest
+    ports:
+      - "6379:6379"
