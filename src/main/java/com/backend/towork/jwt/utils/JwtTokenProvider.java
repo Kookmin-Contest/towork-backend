@@ -25,8 +25,8 @@ public class JwtTokenProvider {
 
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String GRANT_TYPE = "Bearer ";
-    private static final long AT_EXPIRED_DURATION = 60 * 1000;
-    private static final long RT_EXPIRED_DURATION = 60 * 60 * 1000;
+    private static final long AT_EXPIRED_DURATION = 20 * 60 * 1000;
+    private static final long RT_EXPIRED_DURATION = 24 * 60 * 60 * 1000;
     private final PrincipalDetailService principalDetailService;
 
     public String generateToken(Member member) {
