@@ -78,13 +78,8 @@ jobs:
           scp -r .platform ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/ 
 
 
-      - name: executing remote ssh commands using password
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.SSH_SERVER_IP }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            sudo docker pull ${{ secrets.DOCKER_REPO }}/tdwork-api-server
-            docker-compose -f docker-compose.dev.yml up --build -d
-            docker image prune -a -f
+      - name: Execute remote commands
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "sudo docker pull ${{ secrets.DOCKER_REPO }}/tdwork-api-server"
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "docker-compose up --build -d"
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} "docker image prune -a -f"
