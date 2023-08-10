@@ -50,9 +50,11 @@ public class Member {
     @CreatedDate
     private LocalDateTime createDateTime;
 
+    @Builder.Default
     @OneToMany(mappedBy = "owner")
     List<Workspace> workspaces = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "member")
     List<Participant> participants = new ArrayList<>();
 
