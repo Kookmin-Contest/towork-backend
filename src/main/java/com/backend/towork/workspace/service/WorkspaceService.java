@@ -6,14 +6,15 @@ import com.backend.towork.workspace.domain.dto.response.WorkspaceResponseDto;
 import com.backend.towork.workspace.domain.entity.Participant;
 import com.backend.towork.workspace.domain.entity.Scope;
 import com.backend.towork.workspace.domain.entity.Workspace;
+import com.backend.towork.workspace.domain.mapper.WorkspaceMapper;
 import com.backend.towork.workspace.error.exception.WorkspaceNotFoundException;
 import com.backend.towork.workspace.repository.WorkspaceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -40,15 +41,18 @@ public class WorkspaceService {
         workspaceRepository.save(workspace);
     }
 
-    @PreAuthorize("@scopeService.hasUserScopeByWorkspaceId(#workspaceId, #member.id)")
-    public WorkspaceResponseDto getWorkspaceInfoByWorkspaceId(Long workspaceId, Member member) {
-        Workspace workspace = workspaceRepository.findById(workspaceId)
-                .orElseThrow(WorkspaceNotFoundException::new);
+    public List<WorkspaceResponseDto> getWorkspaceInfoByWorkspaceId(List<Long> workspaceIds) {
+        List<WorkspaceResponseDto> workspaceResponseDtoList =
+                new ArrayList<>();
 
-        return WorkspaceResponseDto.builder()
-                .id(workspace.getId())
-                .workspaceName(workspace.getName())
-                .build();
+        workspaceIds.forEach(workspaceId -> {
+            Workspace workspace = workspaceRepository.findById(workspaceId)
+                            .orElseThrow(() -> new WorkspaceNotFoundException(workspaceId));
+            WorkspaceResponseDto workspaceResponseDto = WorkspaceMapper.INSTANCE.toResponseDto(workspace);
+            workspaceResponseDtoList.add(workspaceResponseDto);
+        });
+
+        return workspaceResponseDtoList;
     }
 
 }

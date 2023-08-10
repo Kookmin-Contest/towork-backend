@@ -7,6 +7,7 @@ import com.backend.towork.workspace.domain.dto.request.WorkspaceRequestDto;
 import com.backend.towork.workspace.domain.dto.response.WorkspaceResponseDto;
 import com.backend.towork.workspace.service.WorkspaceService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -16,6 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -44,11 +47,14 @@ public class WorkspaceController {
                 .body(null);
     }
 
-    @GetMapping("/{workspaceId}")
+    @GetMapping("/info")
     @ResponseStatus(HttpStatus.OK)
     @Operation(
             summary = "워크스페이스 정보 가져오기",
             description = "주어진 workspaceId에 해당하는 워크스페이스의 정보를 가져옵니다.",
+            parameters = {
+                    @Parameter(name = "워크스페이스 Ids", description = "정보를 얻고싶은 워크스페이스 id를 ,로 구분하여 전송.")
+            },
             responses = {
                     @ApiResponse(responseCode = "200", description = "성공적으로 워크스페이스의 정보를 가져옴."),
                     @ApiResponse(responseCode = "400", description = "주어진 정보가 올바르지 않음.", content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
@@ -56,11 +62,9 @@ public class WorkspaceController {
                     @ApiResponse(responseCode = "403", description = "주어진 토큰의 멤버가 해당 워크스페이스에 참여자가 아님.", content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
             }
     )
-    public ResponseEntity<WorkspaceResponseDto> getWorkspace(@PathVariable Long workspaceId,
-                                                             @AuthenticationPrincipal PrincipalDetails principal) {
-        Member member = principal.getMember();
-        WorkspaceResponseDto responseDto = workspaceService.getWorkspaceInfoByWorkspaceId(workspaceId, member);
+    public ResponseEntity<List<WorkspaceResponseDto>> getWorkspace(@RequestParam List<Long> workspaceIds) {
+        List<WorkspaceResponseDto> workspaceResponseDtoList = workspaceService.getWorkspaceInfoByWorkspaceId(workspaceIds);
         return ResponseEntity.ok()
-                .body(responseDto);
+                .body(workspaceResponseDtoList);
     }
 }
