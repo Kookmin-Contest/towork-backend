@@ -14,8 +14,8 @@ public class JwtTokenKeys {
     public static Key REFRESH_SECRET_KEY;
 
     public JwtTokenKeys(
-            @Value("${jwt.accessKey}") String accessSecretKey,
-            @Value("${jwt.refreshKey}") String refreshSecretKey) {
+            @Value("${jwt.accessSecretKey}") String accessSecretKey,
+            @Value("${jwt.refreshSecretKey}") String refreshSecretKey) {
         byte[] accessKeyBytes = Decoders.BASE64.decode(accessSecretKey);
         byte[] refreshKeyBytes = Decoders.BASE64.decode(refreshSecretKey);
         ACCESS_SECRET_KEY = Keys.hmacShaKeyFor(accessKeyBytes);
