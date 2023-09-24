@@ -1,3 +1,0 @@
-jwt:
-  accessSecretKey: ${JWT_ACCESS_SECRET_KEY}
-  refreshSecretKey: ${JWT_REFRESH_SECRET_KEY}

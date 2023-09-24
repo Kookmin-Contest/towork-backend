@@ -31,18 +31,17 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         context: .
-        file: ./dev.Dockerfile
+        file: ./Dockerfile
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/tdwork-api-server:latest
+        tags: hsukju00/towork-api
 
     - name: Upload docker-compose.dev.yml
       uses: actions/upload-artifact@v3
       with:
         name: docker-artifact
         path: |
-          docker-compose.dev.yml
-          .platform
- 
+          docker-compose.yml
+
   deploy:
     needs:
       - build
@@ -50,7 +49,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download docker-compose.dev.yml
+      - name: Download docker-compose.yml
         uses: actions/download-artifact@v3
         with:
           name: docker-artifact
@@ -70,7 +69,6 @@ jobs:
         run: |
           scp ./docker-compose.dev.yml ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/docker-compose.yml
           scp -r .platform ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:~/ 
-
 
       - name: Execute remote commands
         run: |

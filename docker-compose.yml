@@ -4,15 +4,23 @@ services:
 
   mysql:
     container_name: mysql
-    image: mysql:latest
+    image: mysql:8.1.0
     ports:
       - "3306:3306"
+    networks:
+      - towork-api-network
+    restart: unless-stopped
+    volumes:
+      - mysql_data:/var/lib/mysql
     environment:
-      TZ: Asia/Seoul
-      LC_ALL: C.UTF-8
-      LANG: C.UTF-8
-      MYSQL_ROOT_PASSWORD: 12345678@
-      MYSQL_DATABASE: backend
+      TZ: Asia/Seoul"
+      MYSQL_USER: ${MYSQL_USERNAME}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_RANDOM_ROOT_PASSWORD: yes
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
     healthcheck:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
       interval: 5s
@@ -21,9 +29,14 @@ services:
 
   redis:
     container_name: redis
-    image: redis:latest
+    image: redis:7.2.0-alpine
     ports:
       - "6379:6379"
+    networks:
+      - towork-api-network
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
     healthcheck:
       test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
       interval: 5s
@@ -31,15 +44,27 @@ services:
       retries: 10
 
 
-  api-server:
-    container_name: api-server
+  spring:
+    container_name: spring
     build:
       context: .
       dockerfile: ./Dockerfile
+    image: hsukju00/towork-api
+    env_file:
+      - .env
     ports:
       - "8080:8080"
+    networks:
+      - towork-api-network
     depends_on:
       mysql:
         condition: service_healthy
       redis:
         condition: service_healthy
+
+networks:
+  towork-api-network:
+
+volumes:
+  mysql_data:
+  redis_data:
