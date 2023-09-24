@@ -37,16 +37,16 @@ jwt:
 oauth2:
   user:
     google:
-      clientId: 301049816046-1slb1riih6jvp420kqrerhph5upp5atj.apps.googleusercontent.com
-      clientSecret: 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
+      clientId: ${GOOGLE_CLIENT_ID}
+      clientSecret: ${GOOGLE_CLIENT_SECRET}
       redirect-uri: http://localhost:8080/oauth2/callback/google
     naver:
-      clientId: 0r7QyOW6Nbojtet0uqPv
-      clientSecret: 8Bki4LOoGB
+      clientId: ${NAVER_CLIENT_ID}
+      clientSecret: ${NAVER_CLIENT_SECRET}
       redirect-uri: http://localhost:8080/oauth2/callback/naver
     kakao:
-      clientId: 7829bb416bd43005e3bf972a5bf240dc
-      clientSecret: trhP8ptxsW2bNwjn5FJhosUybVlvNGly
+      clientId: ${KAKAO_CLIENT_ID}
+      clientSecret: ${KAKAO_CLIENT_SECRET}
       redirect-uri: http://localhost:8080/oauth2/callback/kakao
   provider:
     google:
