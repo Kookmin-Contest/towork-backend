@@ -1,8 +1,9 @@
-# 로컬 실행 방법
+# 오늘의 출근 Backend
+
+## 빌드
+
+먼저 `.env.template`를 복사하여 `.env`를 생성한 뒤 환경변수를 적어 넣는다.
 
 ```shell
-./gradlew bootJar
 docker-compose up --build -d
 ```
-gradlew를 이용하여 build하고
-docker를 이용해 mysql, redis와 함께 서버를 올린다.
